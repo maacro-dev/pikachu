@@ -1,12 +1,16 @@
 ---
-name: "Iloilo City"
-tagline: "The City of Love"
-description: "Iloilo City is the heart of Western Visayas — a vibrant metropolis known for its rich heritage, world-class cuisine, and warm hospitality. Explore ancestral houses, colonial churches, and a booming food scene that has earned it the title 'Food Capital of the Philippines.'"
-heroImage: "/images/districts/iloilo-city-hero.jpg"
+name: Iloilo City
+slug: iloilo-city
+tagline: The City of Love
+description: Iloilo City is the heart of Western Visayas — a vibrant metropolis
+  known for its rich heritage, world-class cuisine, and warm hospitality.
+  Explore ancestral houses, colonial churches, and a booming food scene that has
+  earned it the title 'Food Capital of the Philippines.'
+heroImage: /images/nailong.jpg
 galleryImages:
-  - "/images/districts/iloilo-city-1.jpg"
-  - "/images/districts/iloilo-city-2.jpg"
-  - "/images/districts/iloilo-city-3.jpg"
+  - /images/districts/iloilo-city-1.jpg
+  - /images/districts/iloilo-city-2.jpg
+  - /images/districts/iloilo-city-3.jpg
 order: 1
 ---
 
