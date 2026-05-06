@@ -8,9 +8,9 @@ description: >
   province’s Heritage Destination. It features numerous historic sites,
   including the St. Thomas of Villanova Parish in Miagao, the only UNESCO World
   Heritage Site in the Visayas and Mindanao.
-heroImage: /images/districts/guimbal-hero.jpg
+heroImage: /images/miagao-church-photo-by-ray-tabafunda-19-.jpg
 galleryImages:
-  - /images/districts/guimbal-1.jpg
+  - /images/1-miagao.jpg
 order: 1
 ---
 The district also offers scenic coastlines with marine protected areas and beach resorts, as well as natural attractions such as waterfalls, rock formations, caves, a hidden lake, and rice terraces in its upland areas.
