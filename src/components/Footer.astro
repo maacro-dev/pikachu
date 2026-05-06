@@ -1,0 +1,161 @@
+---
+const footerLinks = {
+  Explore: [
+    { label: "Districts", href: "/districts" },
+    { label: "Attractions", href: "/attractions" },
+    { label: "Events", href: "/events" },
+    { label: "Food", href: "/food" },
+  ],
+  Connect: [
+    { label: "Visit Iloilo", href: "#" },
+    { label: "Travel Guide", href: "#" },
+    { label: "Contact", href: "#" },
+  ],
+};
+---
+
+<footer>
+  <div class="footer-inner container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <span class="footer-logo">ILO<em>ILO</em></span>
+        <p class="footer-tagline">
+          Fun. Foodie. Friendly.<br />
+          The heart of Western Visayas.
+        </p>
+      </div>
+
+      <div class="footer-links">
+        {
+          Object.entries(footerLinks).map(([group, links]) => (
+            <div class="footer-group">
+              <h4 class="footer-group-title">{group}</h4>
+              <ul>
+                {links.map((link) => (
+                  <li>
+                    <a href={link.href} class="footer-link">
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p class="footer-credits">
+        Made with ♡ by Mel Adry · Rei Calopez · Verna Marie
+      </p>
+      <p class="footer-sub">
+        Under <span>Gilbert "Bombette" Marin</span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  footer {
+    background: var(--color-deep);
+    color: rgba(255, 255, 255, 0.6);
+    padding: 4rem 0 2rem;
+    margin-top: 6rem;
+  }
+
+  .footer-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+  }
+
+  .footer-top {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .footer-top {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+  }
+
+  .footer-logo {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: 0.1em;
+    color: white;
+    display: block;
+    margin-bottom: 0.75rem;
+  }
+
+  .footer-logo em {
+    font-style: normal;
+    color: var(--color-terracotta);
+  }
+
+  .footer-tagline {
+    font-size: 0.85rem;
+    line-height: 1.7;
+    max-width: 20ch;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 3rem;
+  }
+
+  .footer-group-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: white;
+    margin-bottom: 1rem;
+  }
+
+  .footer-group ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .footer-link {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.55);
+    transition: color 0.2s;
+  }
+
+  .footer-link:hover {
+    color: white;
+  }
+
+  .footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    align-items: center;
+    text-align: center;
+  }
+
+  .footer-credits {
+    font-size: 0.8rem;
+  }
+
+  .footer-sub {
+    font-size: 0.75rem;
+    opacity: 0.5;
+  }
+
+  .footer-sub span {
+    color: rgba(196, 113, 74, 0.8);
+  }
+</style>

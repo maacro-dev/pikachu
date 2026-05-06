@@ -1,0 +1,57 @@
+---
+interface Props {
+  filters: { label: string; value: string }[];
+  activeFilter?: string;
+  paramName?: string;
+}
+
+const { filters, activeFilter = "all", paramName = "district" } = Astro.props;
+
+const allFilters = [{ label: "All", value: "all" }, ...filters];
+---
+
+<div class="filter-tabs" role="tablist">
+  {
+    allFilters.map((f) => (
+      <a
+        href={f.value === "all" ? "?" : `?${paramName}=${f.value}`}
+        class={`filter-tab ${activeFilter === f.value ? "active" : ""}`}
+        role="tab"
+        aria-selected={activeFilter === f.value}
+      >
+        {f.label}
+      </a>
+    ))
+  }
+</div>
+
+<style>
+  .filter-tabs {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+
+  .filter-tab {
+    padding: 0.45rem 1rem;
+    border-radius: 100px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--color-muted);
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(26, 20, 16, 0.1);
+    transition: all 0.2s;
+  }
+
+  .filter-tab:hover {
+    background: rgba(255, 255, 255, 0.8);
+    color: var(--color-deep);
+  }
+
+  .filter-tab.active {
+    background: var(--color-deep);
+    color: white;
+    border-color: var(--color-deep);
+  }
+</style>

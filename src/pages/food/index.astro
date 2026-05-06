@@ -1,0 +1,101 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+import SectionHeader from "../../components/SectionHeader.astro";
+import FilterTabs from "../../components/FilterTabs.astro";
+import Card from "../../components/Card.astro";
+
+const allFood = await getCollection("food");
+const districts = (await getCollection("districts")).sort(
+  (a, b) => a.data.order - b.data.order
+);
+const districtFilters = districts.map((d) => ({
+  label: d.data.name,
+  value: d.data.slug,
+}));
+
+const selectedDistrict = Astro.url.searchParams.get("district") || "all";
+const filtered =
+  selectedDistrict === "all"
+    ? allFood
+    : allFood.filter((f) => f.data.district === selectedDistrict);
+---
+
+<Layout title="Food | Iloilo Province Tourism">
+  <Header />
+
+  <main class="page-main container">
+    <SectionHeader
+      label="Food Capital of the Philippines"
+      title="Taste Iloilo"
+      subtitle="Ilonggo cuisine is a living heritage — discover iconic dishes, local delicacies, and beloved restaurants across the province."
+    />
+
+    <FilterTabs
+      filters={districtFilters}
+      activeFilter={selectedDistrict}
+      paramName="district"
+    />
+
+    <div class="food-grid">
+      {
+        filtered.length > 0
+          ? filtered.map((f) => (
+              <Card
+                title={f.data.name}
+                description={f.data.description}
+                image={f.data.image}
+                tag={f.data.type}
+              />
+            ))
+          : (
+            <div class="empty-state">
+              <p>No food listings found for this district yet.</p>
+              <a href="/food">View all</a>
+            </div>
+          )
+      }
+    </div>
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  .page-main {
+    padding-top: 8rem;
+    padding-bottom: 4rem;
+  }
+
+  .food-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  @media (min-width: 640px) {
+    .food-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .food-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .empty-state {
+    grid-column: 1 / -1;
+    padding: 4rem;
+    text-align: center;
+    color: var(--color-muted);
+  }
+
+  .empty-state a {
+    color: var(--color-terracotta);
+    font-weight: 600;
+  }
+</style>

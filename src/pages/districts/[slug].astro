@@ -1,0 +1,275 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+import Card from "../../components/Card.astro";
+import SectionHeader from "../../components/SectionHeader.astro";
+
+export async function getStaticPaths() {
+  const districts = await getCollection("districts");
+  return districts.map((d) => ({
+    params: { slug: d.slug },
+    props: { district: d },
+  }));
+}
+
+const { district } = Astro.props;
+const { Content } = await district.render();
+
+const allAttractions = await getCollection("attractions");
+const allFood = await getCollection("food");
+const allFestivals = await getCollection("festivals");
+const allEvents = await getCollection("events");
+
+const slug = district.slug;
+const attractions = allAttractions.filter((a) => a.data.district === slug);
+const food = allFood.filter((f) => f.data.district === slug);
+const festivals = allFestivals.filter((f) => f.data.district === slug);
+const events = allEvents.filter((e) => e.data.district === slug);
+
+function formatDate(dateStr: string) {
+  return new Date(dateStr).toLocaleDateString("en-PH", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+---
+
+<Layout title={`${district.data.name} | Iloilo Province Tourism`} description={district.data.description}>
+  <Header transparent />
+
+  <!-- HERO -->
+  <div class="district-hero">
+    <img src={district.data.heroImage} alt={district.data.name} class="district-hero__img" />
+    <div class="district-hero__overlay" />
+    <div class="district-hero__content container">
+      <a href="/districts" class="back-link">← All Districts</a>
+      <span class="district-hero__tag">{district.data.tagline}</span>
+      <h1 class="district-hero__title">{district.data.name}</h1>
+    </div>
+  </div>
+
+  <main class="container district-main">
+
+    <!-- OVERVIEW -->
+    <section class="district-overview">
+      <div class="district-overview__text">
+        <p class="district-overview__lead">{district.data.description}</p>
+        <div class="district-overview__body prose">
+          <Content />
+        </div>
+      </div>
+
+      {district.data.galleryImages && district.data.galleryImages.length > 0 && (
+        <div class="district-gallery">
+          {district.data.galleryImages.map((img) => (
+            <img src={img} alt="" loading="lazy" class="district-gallery__img" />
+          ))}
+        </div>
+      )}
+    </section>
+
+    <!-- ATTRACTIONS -->
+    {attractions.length > 0 && (
+      <section class="district-section">
+        <SectionHeader label="Explore" title="Attractions" />
+        <div class="card-grid">
+          {attractions.map((a) => (
+            <Card
+              title={a.data.name}
+              description={a.data.description}
+              image={a.data.image}
+              tag={a.data.tags?.[0]}
+            />
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- FOOD -->
+    {food.length > 0 && (
+      <section class="district-section">
+        <SectionHeader label="Taste" title="Food & Flavors" />
+        <div class="card-grid">
+          {food.map((f) => (
+            <Card
+              title={f.data.name}
+              description={f.data.description}
+              image={f.data.image}
+              tag={f.data.type}
+            />
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- FESTIVALS -->
+    {festivals.length > 0 && (
+      <section class="district-section">
+        <SectionHeader label="Celebrate" title="Festivals" />
+        <div class="card-grid">
+          {festivals.map((f) => (
+            <Card
+              title={f.data.name}
+              description={f.data.description}
+              image={f.data.image}
+              date={f.data.date}
+            />
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- EVENTS -->
+    {events.length > 0 && (
+      <section class="district-section">
+        <SectionHeader label="Events" title="Upcoming" viewAllHref="/events" />
+        <div class="card-grid">
+          {events.map((e) => (
+            <Card
+              title={e.data.title}
+              description={e.data.description}
+              image={e.data.image}
+              date={formatDate(e.data.date)}
+              tag={e.data.venue}
+            />
+          ))}
+        </div>
+      </section>
+    )}
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  .district-hero {
+    position: relative;
+    height: 70vh;
+    min-height: 480px;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+  }
+
+  .district-hero__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .district-hero__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(26,20,16,0.85) 0%, rgba(26,20,16,0.2) 60%, transparent 100%);
+  }
+
+  .district-hero__content {
+    position: relative;
+    z-index: 2;
+    color: white;
+    padding-bottom: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .back-link {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.7);
+    transition: color 0.2s;
+    margin-bottom: 0.5rem;
+    display: inline-block;
+  }
+
+  .back-link:hover {
+    color: white;
+  }
+
+  .district-hero__tag {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-terracotta);
+  }
+
+  .district-hero__title {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 8vw, 6rem);
+    font-weight: 400;
+    line-height: 1;
+  }
+
+  .district-main {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+  }
+
+  .district-overview {
+    display: grid;
+    gap: 2rem;
+  }
+
+  @media (min-width: 768px) {
+    .district-overview {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .district-overview__lead {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: var(--color-muted);
+  }
+
+  .district-overview__body {
+    font-size: 0.9rem;
+    line-height: 1.8;
+    color: var(--color-muted);
+  }
+
+  .district-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.5rem;
+  }
+
+  .district-gallery__img {
+    border-radius: 0.75rem;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    width: 100%;
+  }
+
+  .district-section {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  @media (min-width: 640px) {
+    .card-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .card-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

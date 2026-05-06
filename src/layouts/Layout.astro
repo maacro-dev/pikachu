@@ -1,0 +1,126 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "Iloilo Province | Tourism",
+  description = "Discover the warmth, culture, and flavor of Iloilo Province — the heart of Western Visayas.",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <link rel="icon" href="/favicon.ico" />
+    <title>{title}</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --color-sand: #f5f0e8;
+    --color-warm: #e8ddd0;
+    --color-terracotta: #c4714a;
+    --color-deep: #1a1410;
+    --color-muted: #6b5f53;
+    --color-glass: rgba(255, 255, 255, 0.45);
+    --color-glass-border: rgba(255, 255, 255, 0.6);
+    --font-display: "Playfair Display", serif;
+    --font-body: "Space Grotesk", sans-serif;
+    --radius-card: 1.25rem;
+    --shadow-card: 0 8px 32px rgba(26, 20, 16, 0.08);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--color-sand);
+    color: var(--color-deep);
+    overflow-x: hidden;
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+  }
+
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  .glass {
+    background: var(--color-glass);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--color-glass-border);
+  }
+
+  /* Noise texture overlay */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* Warm gradient background blobs */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 80% 60% at 20% 10%, rgba(196, 113, 74, 0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 80% at 80% 80%, rgba(107, 95, 83, 0.10) 0%, transparent 60%),
+      radial-gradient(ellipse 100% 50% at 50% 50%, rgba(245, 240, 232, 0.3) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .fade-up {
+    opacity: 0;
+    transform: translateY(24px);
+    animation: fadeUp 0.7s ease forwards;
+  }
+
+  @keyframes fadeUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
