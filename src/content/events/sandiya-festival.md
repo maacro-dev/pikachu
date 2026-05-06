@@ -1,7 +1,7 @@
 ---
 title: Sandiya Festival
 date: 2026-05-07
-district: oton
+district: iloilo-city
 description: Hello, guys
 image: /images/nailong.jpg
 tags:
