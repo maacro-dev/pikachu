@@ -14,6 +14,6 @@ galleryImages:
   - /images/1-miagao.jpg
 order: 1
 ---
-##### The district also offers scenic coastlines with marine protected areas and beach resorts, as well as natural attractions such as waterfalls, rock formations, caves, a hidden lake, and rice terraces in its upland areas.
+The district also offers scenic coastlines with marine protected areas and beach resorts, as well as natural attractions such as waterfalls, rock formations, caves, a hidden lake, and rice terraces in its upland areas.
 
-##### Visitors can reach the district by jeepney or bus from major terminals in Iloilo City and nearby towns.
+Visitors can reach the district by jeepney or bus from major terminals in Iloilo City and nearby towns.
