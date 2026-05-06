@@ -51,8 +51,18 @@ const events = defineCollection({
   type: "content",
   schema: z.object({
     title: z.string(),
-    date: z.string(),
-    endDate: z.string().optional(),
+    date: z.union([z.date(), z.string()]).transform((val: any) => {
+      if (val instanceof Date) {
+        return val.toISOString().slice(0, 10);
+      }
+      return val.replace(/^"|"$/g, '');
+    }),
+    endDate: z.union([z.date(), z.string()]).transform((val: any) => {
+      if (val instanceof Date) {
+        return val.toISOString().slice(0, 10);
+      }
+      return val.replace(/^"|"$/g, '');
+    }).optional(),
     district: z.string(),
     description: z.string(),
     image: z.string(),
