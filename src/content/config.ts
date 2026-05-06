@@ -40,7 +40,12 @@ const festivals = defineCollection({
   schema: z.object({
     name: z.string(),
     district: z.string(),
-    date: z.string(),
+    date: z.union([z.date(), z.string()]).transform((val: any) => {
+      if (val instanceof Date) {
+        return val.toISOString().slice(0, 10);
+      }
+      return val.replace(/^"|"$/g, '');
+    }),
     month: z.number().min(1).max(12),
     description: z.string(),
     image: z.string(),
