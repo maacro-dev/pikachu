@@ -1,6 +1,6 @@
 ---
-name: District 1
-slug: district-1
+name: First District
+slug: first-district
 tagline: The Heritage Destination
 description: >+
   The First Congressional District of Iloilo, composed of Oton, Tigbauan,
