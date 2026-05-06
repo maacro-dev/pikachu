@@ -5,8 +5,8 @@ backend:
 media_folder: "public/images"
 public_folder: "/images"
 
-site_url: https://your-site.netlify.app
-display_url: https://your-site.netlify.app
+site_url: https://glistening-entremet-e6fa08.netlify.app
+display_url: https://glistening-entremet-e6fa08.netlify.app
 
 collections:
   - name: "districts"
