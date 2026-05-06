@@ -1,7 +1,7 @@
 ---
 name: Katagman Festival
 district: oton
-date: 2026-05-01
+date: 2026-07-01
 month: 5
 description: >
   Celebrated every last week of April until the first week of May. The
