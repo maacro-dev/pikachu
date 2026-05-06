@@ -1,11 +1,15 @@
 ---
-name: "Miagao"
-tagline: "Home of the Baroque"
-description: "Miagao is home to the UNESCO World Heritage Site — the Miagao Church, a stunning example of Philippine Baroque architecture. This coastal municipality blends deep history with vibrant weaving traditions and natural beauty."
-heroImage: "/images/districts/miagao-hero.jpg"
+name: Miagao
+slug: miagao
+tagline: Home of the Baroque
+description: Miagao is home to the UNESCO World Heritage Site — the Miagao
+  Church, a stunning example of Philippine Baroque architecture. This coastal
+  municipality blends deep history with vibrant weaving traditions and natural
+  beauty.
+heroImage: /images/att.zd_zy2nirs3nrxrnrifws-hsk1xzprrgvqhv4ltrmtu.jpg
 galleryImages:
-  - "/images/districts/miagao-1.jpg"
-  - "/images/districts/miagao-2.jpg"
+  - /images/districts/miagao-1.jpg
+  - /images/districts/miagao-2.jpg
 order: 2
 ---
 
