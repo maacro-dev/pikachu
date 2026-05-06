@@ -7,5 +7,6 @@ image: /images/nailong.jpg
 tags:
   - festival
   - happy
-featured: true
+featured: false
 ---
+optional full details
