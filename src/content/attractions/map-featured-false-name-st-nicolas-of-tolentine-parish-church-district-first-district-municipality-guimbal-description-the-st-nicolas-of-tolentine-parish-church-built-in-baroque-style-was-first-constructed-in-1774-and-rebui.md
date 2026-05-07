@@ -11,6 +11,6 @@ description: "The St. Nicolas of Tolentine Parish Church, built in Baroque
   1948 Lady Kaykay earthquake, preserving its historic and architectural "
 image: /images/san-nicolas-de-tolentino-church.jpg
 tags:
-  - Attractions
+  - HERITAGE
 featured: false
 ---
