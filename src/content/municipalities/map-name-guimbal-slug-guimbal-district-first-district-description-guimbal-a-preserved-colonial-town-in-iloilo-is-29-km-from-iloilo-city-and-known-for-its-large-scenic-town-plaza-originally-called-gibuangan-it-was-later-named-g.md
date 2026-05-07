@@ -10,5 +10,5 @@ description: Guimbal, a preserved colonial town in Iloilo, is 29 km from Iloilo
   barangays, a population of 33,820, celebrates its fiesta on September 10 in
   honor of San Nicolas de Tolentino, and holds market day every Tuesday. It can
   be reached by jeepney from Oton or Iloilo City.
-image: /images/guimbal-church.jpg
+image: /images/guimbal-church1.jpg
 ---
