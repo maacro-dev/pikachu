@@ -1,0 +1,176 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+import Card from "../../components/Card.astro";
+import SectionHeader from "../../components/SectionHeader.astro";
+import { formatDate } from "@/lib/utils/date";
+import { sanitizeSlug } from "@/lib/utils/string";
+
+export async function getStaticPaths() {
+  const municipalities = await getCollection("municipalities");
+  return municipalities.map((m) => ({
+    params: { slug: m.data.slug },
+    props: { municipality: m },
+  }));
+}
+
+const { municipality } = Astro.props;
+
+const allAttractions = await getCollection("attractions");
+const allFood = await getCollection("food");
+const allFestivals = await getCollection("festivals");
+const allEvents = await getCollection("events");
+
+const slug = municipality.data.slug;
+
+const attractions = allAttractions.filter((a) => a.data.municipality === slug);
+const food = allFood.filter((f) => f.data.municipality === slug);
+const festivals = allFestivals.filter((f) => f.data.municipality === slug);
+const events = allEvents.filter((e) => e.data.municipality === slug);
+---
+
+<Layout
+  title={`${municipality.data.name} | Iloilo Province Tourism`}
+  description={municipality.data.description}
+>
+  <Header transparent />
+
+  <section class="relative flex h-[70vh] min-h-120 items-end overflow-hidden">
+    <img
+      src={municipality.data.image ?? "/images/placeholder.jpg"}
+      alt={municipality.data.name}
+      class="absolute inset-0 h-full w-full object-cover"
+    />
+    <div
+      class="absolute inset-0 bg-linear-to-t from-deep/85 via-deep/20 to-transparent"
+    >
+    </div>
+
+    <div
+      class="section-container relative z-10 flex flex-col gap-2 pb-12 text-white px-4 md:px-6 lg:px-8 "
+    >
+      <a
+        href={`/districts/${municipality.data.district}`}
+        id="back-link"
+        class="mb-2 inline-block text-[0.8rem] font-medium text-white/70 transition-colors duration-200 hover:text-white"
+      >
+        ← Back to {sanitizeSlug(municipality.data.district)}
+      </a>
+      <span
+        class="text-[0.75rem] font-semibold uppercase tracking-widest text-primary"
+      >
+        {municipality.data.district}
+      </span>
+      <h1
+        class="font-display text-[clamp(2.5rem,8vw,6rem)] font-normal leading-none"
+      >
+        {municipality.data.name}
+      </h1>
+    </div>
+  </section>
+
+  <main
+    class="section-container flex flex-col gap-16 py-16 px-4 md:px-6 lg:px-8 min-h-150"
+  >
+    {
+      municipality.data.description && (
+        <section class="prose prose-stone max-w-none text-[1.05rem] leading-[1.8] text-muted">
+          <p>{municipality.data.description}</p>
+        </section>
+      )
+    }
+
+    {
+      attractions.length > 0 && (
+        <section class="flex flex-col">
+          <SectionHeader label="Explore" title="Attractions" />
+          <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {attractions.map((a) => (
+              <Card
+                title={a.data.name}
+                description={a.data.description}
+                image={a.data.image}
+                tag={a.data.tags?.[0]}
+              />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <!-- Food -->
+    {
+      food.length > 0 && (
+        <section class="flex flex-col">
+          <SectionHeader label="Taste" title="Food & Flavors" />
+          <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {food.map((f) => (
+              <Card
+                title={f.data.name}
+                description={f.data.description}
+                image={f.data.image}
+                tag={f.data.type}
+              />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <!-- Festivals -->
+    {
+      festivals.length > 0 && (
+        <section class="flex flex-col">
+          <SectionHeader label="Celebrate" title="Festivals" />
+          <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {festivals.map((f) => (
+              <Card
+                title={f.data.name}
+                description={f.data.description}
+                image={f.data.image}
+                date={formatDate(f.data.date)}
+              />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <!-- Events -->
+    {
+      events.length > 0 && (
+        <section class="flex flex-col">
+          <SectionHeader label="Events" title="Upcoming" />
+          <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {events.map((e) => (
+              <Card
+                title={e.data.title}
+                description={e.data.description}
+                image={e.data.image}
+                date={formatDate(e.data.date)}
+                tag={e.data.venue}
+              />
+            ))}
+          </div>
+        </section>
+      )
+    }
+  </main>
+
+  <Footer />
+</Layout>
+
+<script>
+  document.getElementById("back-link").addEventListener("click", (e) => {
+    e.preventDefault();
+    // If there’s a history entry to go back to, use it.
+    // Otherwise fall back to the normal href.
+    if (document.referrer.includes(window.location.origin)) {
+      history.back();
+    } else {
+      window.location.href = e.currentTarget.href;
+    }
+  });
+</script>

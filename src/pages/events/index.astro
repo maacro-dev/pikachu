@@ -6,6 +6,7 @@ import Footer from "../../components/Footer.astro";
 import SectionHeader from "../../components/SectionHeader.astro";
 import FilterTabs from "../../components/FilterTabs.astro";
 import Card from "../../components/Card.astro";
+import { formatDate } from "@/lib/utils/date";
 
 const allEvents = (await getCollection("events")).sort(
   (a, b) => new Date(a.data.date).getTime() - new Date(b.data.date).getTime()
@@ -16,25 +17,10 @@ const districtFilters = districts
   .sort((a, b) => a.data.order - b.data.order)
   .map((d) => ({ label: d.data.name, value: d.data.slug }));
 
-const selectedDistrict = Astro.url.searchParams.get("district") || "all";
-const filteredEvents =
-  selectedDistrict === "all"
-    ? allEvents
-    : allEvents.filter((e) => e.data.district === selectedDistrict);
-
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("en-PH", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
-const upcoming = filteredEvents.filter(
+const upcoming = allEvents.filter(
   (e) => new Date(e.data.date) >= new Date()
 );
-const past = filteredEvents.filter(
+const past = allEvents.filter(
   (e) => new Date(e.data.date) < new Date()
 );
 ---
@@ -42,24 +28,26 @@ const past = filteredEvents.filter(
 <Layout title="Events | Iloilo Province Tourism">
   <Header />
 
-  <main class="page-main container">
+  <main class="section-container px-4 pb-16 pt-32 md:px-6 lg:px-8">
     <SectionHeader
       label="Iloilo Events"
       title="What's on"
       subtitle="From grand festivals to intimate cultural tours — something's always happening in Iloilo."
     />
 
+    <!-- FilterTabs now purely for UI; the script handles the filtering -->
     <FilterTabs
       filters={districtFilters}
-      activeFilter={selectedDistrict}
+      activeFilter="all"
       paramName="district"
     />
 
+    <!-- UPCOMING SECTION -->
     {
       upcoming.length > 0 ? (
-        <div class="events-grid">
+        <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 min-h-[400px]">
           {upcoming.map((e) => (
-            <div id={e.slug} class="event-item">
+            <div data-filter={e.data.district}>
               <Card
                 title={e.data.title}
                 description={e.data.description}
@@ -68,11 +56,17 @@ const past = filteredEvents.filter(
                 tag={e.data.district}
                 size="lg"
               />
+
               {e.data.venue && (
-                <div class="event-meta">
-                  <span class="event-venue">📍 {e.data.venue}</span>
+                <div class="flex flex-wrap items-center gap-2 px-1">
+                  <span class="flex-1 text-[0.78rem] text-muted">
+                    📍 {e.data.venue}
+                  </span>
+
                   {e.data.tags?.map((tag) => (
-                    <span class="event-tag">{tag}</span>
+                    <span class="rounded-full bg-primary/10 px-2 py-0.5 text-[0.7rem] font-semibold capitalize text-primary">
+                      {tag}
+                    </span>
                   ))}
                 </div>
               )}
@@ -80,26 +74,34 @@ const past = filteredEvents.filter(
           ))}
         </div>
       ) : (
-        <div class="empty-state">
-          <p>No upcoming events found{selectedDistrict !== "all" ? " for this district" : ""}.</p>
-          <a href="/events">View all events</a>
+        <div class="py-16 text-center text-muted">
+          <p>No upcoming events found.</p>
+          <a href="/events" class="font-semibold text-primary">
+            View all events
+          </a>
         </div>
       )
     }
 
+    <!-- PAST EVENTS SECTION (always rendered, but cards may be hidden by filter) -->
     {
       past.length > 0 && (
-        <section class="past-events">
-          <h2 class="past-events__title">Past Events</h2>
-          <div class="events-grid events-grid--past">
+        <section class="mt-16 border-t border-deep/8 pt-12">
+          <h2 class="mb-6 font-display text-2xl font-normal text-muted">
+            Past Events
+          </h2>
+
+          <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 min-h-[300px] opacity-65">
             {past.map((e) => (
-              <Card
-                title={e.data.title}
-                description={e.data.description}
-                image={e.data.image}
-                date={formatDate(e.data.date)}
-                tag={e.data.district}
-              />
+              <div data-filter={e.data.district}>
+                <Card
+                  title={e.data.title}
+                  description={e.data.description}
+                  image={e.data.image}
+                  date={formatDate(e.data.date)}
+                  tag={e.data.district}
+                />
+              </div>
             ))}
           </div>
         </section>
@@ -110,86 +112,14 @@ const past = filteredEvents.filter(
   <Footer />
 </Layout>
 
-<style>
-  .page-main {
-    padding-top: 8rem;
-    padding-bottom: 4rem;
-  }
+<script>
+  import { initClientFilter } from "@/lib/utils/filter";
 
-  .events-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
+  const filter = initClientFilter({
+    filterAttribute: "filter",
+    paramName: "district",
+  });
 
-  @media (min-width: 768px) {
-    .events-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .events-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-
-  .event-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .event-meta {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    align-items: center;
-    padding: 0 0.25rem;
-  }
-
-  .event-venue {
-    font-size: 0.78rem;
-    color: var(--color-muted);
-    flex: 1;
-  }
-
-  .event-tag {
-    font-size: 0.7rem;
-    font-weight: 600;
-    padding: 0.15rem 0.5rem;
-    border-radius: 100px;
-    background: rgba(196,113,74,0.1);
-    color: var(--color-terracotta);
-    text-transform: capitalize;
-  }
-
-  .past-events {
-    margin-top: 4rem;
-    padding-top: 3rem;
-    border-top: 1px solid rgba(26,20,16,0.08);
-  }
-
-  .past-events__title {
-    font-family: var(--font-display);
-    font-size: 1.5rem;
-    font-weight: 400;
-    color: var(--color-muted);
-    margin-bottom: 1.5rem;
-  }
-
-  .events-grid--past {
-    opacity: 0.65;
-  }
-
-  .empty-state {
-    padding: 4rem;
-    text-align: center;
-    color: var(--color-muted);
-  }
-
-  .empty-state a {
-    color: var(--color-terracotta);
-    font-weight: 600;
-  }
-</style>
+  filter.update();
+  document.addEventListener("astro:page-load", filter.update);
+</script>

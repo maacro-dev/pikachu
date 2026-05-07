@@ -15,18 +15,12 @@ const districtFilters = districts.map((d) => ({
   label: d.data.name,
   value: d.data.slug,
 }));
-
-const selectedDistrict = Astro.url.searchParams.get("district") || "all";
-const filtered =
-  selectedDistrict === "all"
-    ? allFood
-    : allFood.filter((f) => f.data.district === selectedDistrict);
 ---
 
 <Layout title="Food | Iloilo Province Tourism">
   <Header />
 
-  <main class="page-main container">
+  <main class="section-container px-4 pb-16 pt-32 md:px-6 lg:px-8">
     <SectionHeader
       label="Food Capital of the Philippines"
       title="Taste Iloilo"
@@ -35,67 +29,35 @@ const filtered =
 
     <FilterTabs
       filters={districtFilters}
-      activeFilter={selectedDistrict}
+      activeFilter="all"
       paramName="district"
     />
 
-    <div class="food-grid">
-      {
-        filtered.length > 0
-          ? filtered.map((f) => (
-              <Card
-                title={f.data.name}
-                description={f.data.description}
-                image={f.data.image}
-                tag={f.data.type}
-              />
-            ))
-          : (
-            <div class="empty-state">
-              <p>No food listings found for this district yet.</p>
-              <a href="/food">View all</a>
-            </div>
-          )
-      }
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 min-h-[400px]">
+      {allFood.map((f) => (
+        <div data-filter={f.data.district}>
+          <Card
+            title={f.data.name}
+            description={f.data.description}
+            image={f.data.image}
+            tag={f.data.type}
+          />
+        </div>
+      ))}
     </div>
   </main>
 
   <Footer />
 </Layout>
 
-<style>
-  .page-main {
-    padding-top: 8rem;
-    padding-bottom: 4rem;
-  }
+<script>
+  import { initClientFilter } from "@/lib/utils/filter";
 
-  .food-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.25rem;
-  }
+  const filter = initClientFilter({
+    filterAttribute: "filter",
+    paramName: "district",
+  });
 
-  @media (min-width: 640px) {
-    .food-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .food-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-
-  .empty-state {
-    grid-column: 1 / -1;
-    padding: 4rem;
-    text-align: center;
-    color: var(--color-muted);
-  }
-
-  .empty-state a {
-    color: var(--color-terracotta);
-    font-weight: 600;
-  }
-</style>
+  filter.update();
+  document.addEventListener("astro:page-load", filter.update);
+</script>

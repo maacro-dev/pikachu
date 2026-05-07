@@ -5,7 +5,7 @@ interface Props {
 const { transparent = false } = Astro.props;
 
 const navItems = [
-  { label: "Home", path: "/" },
+  // { label: "Home", path: "/" },
   { label: "Districts", path: "/districts" },
   { label: "Attractions", path: "/attractions" },
   { label: "Events", path: "/events" },
@@ -13,33 +13,61 @@ const navItems = [
 ];
 ---
 
-<header id="main-header" class={transparent ? "transparent" : ""}>
-  <div id="header-inner">
-    <a href="/" class="logo" aria-label="Iloilo Province Tourism">
-      <span class="logo-text">ILO<em>ILO</em></span>
+<header class="fixed top-3 left-3 right-3 z-100 flex flex-col gap-2">
+  <div
+    class:list={[
+      "flex items-center justify-between rounded-full border px-4 py-3 shadow-[0_4px_24px_rgba(26,20,16,0.06)] transition-all duration-300 ease-out md:px-5",
+      transparent
+        ? "border-transparent bg-transparent shadow-none backdrop-blur-none"
+        : "border-white/70 bg-white/55 backdrop-blur-[20px]",
+    ]}
+  >
+    <a href="/" class="flex items-center" aria-label="Iloilo Province Tourism">
+      <span class="font-body text-base font-bold tracking-widest text-deep">
+        ILO<em class="not-italic text-primary">ILO</em>
+      </span>
     </a>
 
-    <nav class="desktop-nav" aria-label="Main navigation">
+    <nav class="hidden items-center gap-8 md:flex" aria-label="Main navigation">
       {
         navItems.map((item) => (
-          <a href={item.path} class="nav-link">
+          <a
+            href={item.path}
+            class="relative text-[0.85rem] font-medium tracking-[0.02em] text-deep transition-colors duration-200 hover:text-primary after:absolute after:-bottom-0.5 after:left-0 after:h-[1.5px] after:w-0 after:bg-primary-dark after:transition-all after:duration-300 hover:after:w-full"
+          >
             {item.label}
           </a>
         ))
       }
     </nav>
 
-    <button id="menu-toggle" aria-label="Toggle menu" aria-expanded="false">
-      <span></span>
-      <span></span>
-      <span></span>
+    <button
+      id="menu-toggle"
+      class="flex w-8 flex-col gap-1.25 bg-none p-1 md:hidden"
+      aria-label="Toggle menu"
+      aria-expanded="false"
+      type="button"
+    >
+      <span class="block h-[1.5px] origin-center bg-deep transition-all duration-300"></span>
+      <span class="block h-[1.5px] origin-center bg-deep transition-all duration-300"></span>
+      <span class="block h-[1.5px] origin-center bg-deep transition-all duration-300"></span>
     </button>
   </div>
 
-  <nav id="mobile-menu" aria-hidden="true">
+  <nav
+    id="mobile-menu"
+    aria-hidden="true"
+    class="flex max-h-0 flex-col overflow-hidden rounded-2xl border border-white/80 bg-white/90 opacity-0 backdrop-blur-[20px] transition-[max-height,opacity] duration-300 ease-out md:hidden"
+  >
     {
-      navItems.map((item) => (
-        <a href={item.path} class="mobile-nav-link">
+      navItems.map((item, index) => (
+        <a
+          href={item.path}
+          class:list={[
+            "px-5 py-3 text-[0.9rem] font-medium text-deep transition-colors duration-200 hover:bg-primary/8 hover:text-primary",
+            index !== navItems.length - 1 && "border-b border-deep/6",
+          ]}
+        >
           {item.label}
         </a>
       ))
@@ -47,189 +75,41 @@ const navItems = [
   </nav>
 </header>
 
-<style>
-  #main-header {
-    position: fixed;
-    top: 0.75rem;
-    left: 0.75rem;
-    right: 0.75rem;
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  #header-inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.75rem 1rem;
-    border-radius: 100px;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    background: rgba(255, 255, 255, 0.55);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.7);
-    box-shadow: 0 4px 24px rgba(26, 20, 16, 0.06);
-  }
-
-  #main-header.transparent #header-inner {
-    background: transparent;
-    backdrop-filter: none;
-    border-color: transparent;
-    box-shadow: none;
-  }
-
-  .logo {
-    display: flex;
-    align-items: center;
-  }
-
-  .logo-text {
-    font-family: var(--font-body);
-    font-weight: 700;
-    font-size: 1rem;
-    letter-spacing: 0.1em;
-    color: var(--color-deep);
-  }
-
-  .logo-text em {
-    font-style: normal;
-    color: var(--color-terracotta);
-  }
-
-  .desktop-nav {
-    display: none;
-    gap: 2rem;
-    align-items: center;
-  }
-
-  @media (min-width: 768px) {
-    .desktop-nav {
-      display: flex;
-    }
-  }
-
-  .nav-link {
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--color-deep);
-    letter-spacing: 0.02em;
-    position: relative;
-    transition: color 0.2s;
-  }
-
-  .nav-link::after {
-    content: "";
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 0;
-    height: 1.5px;
-    background: var(--color-terracotta);
-    transition: width 0.3s ease;
-  }
-
-  .nav-link:hover {
-    color: var(--color-terracotta);
-  }
-
-  .nav-link:hover::after {
-    width: 100%;
-  }
-
-  #menu-toggle {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px;
-    width: 32px;
-  }
-
-  @media (min-width: 768px) {
-    #menu-toggle {
-      display: none;
-    }
-  }
-
-  #menu-toggle span {
-    display: block;
-    height: 1.5px;
-    background: var(--color-deep);
-    transition: all 0.3s ease;
-    transform-origin: center;
-  }
-
-  #menu-toggle.open span:nth-child(1) {
-    transform: translateY(6.5px) rotate(45deg);
-  }
-
-  #menu-toggle.open span:nth-child(2) {
-    opacity: 0;
-    transform: scaleX(0);
-  }
-
-  #menu-toggle.open span:nth-child(3) {
-    transform: translateY(-6.5px) rotate(-45deg);
-  }
-
-  #mobile-menu {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    overflow: hidden;
-    max-height: 0;
-    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
-    opacity: 0;
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(20px);
-    border-radius: 1.25rem;
-    border: 1px solid rgba(255, 255, 255, 0.8);
-  }
-
-  #mobile-menu.open {
-    max-height: 400px;
-    opacity: 1;
-  }
-
-  .mobile-nav-link {
-    padding: 0.875rem 1.25rem;
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: var(--color-deep);
-    border-bottom: 1px solid rgba(26, 20, 16, 0.06);
-    transition: background 0.2s, color 0.2s;
-  }
-
-  .mobile-nav-link:last-child {
-    border-bottom: none;
-  }
-
-  .mobile-nav-link:hover {
-    background: rgba(196, 113, 74, 0.08);
-    color: var(--color-terracotta);
-  }
-</style>
-
 <script>
   const toggle = document.getElementById("menu-toggle");
   const menu = document.getElementById("mobile-menu");
 
+  const first = toggle?.children[0] as HTMLSpanElement | undefined;
+  const second = toggle?.children[1] as HTMLSpanElement | undefined;
+  const third = toggle?.children[2] as HTMLSpanElement | undefined;
+
+  function setOpen(open: boolean) {
+    if (!toggle || !menu || !first || !second || !third) return;
+
+    menu.classList.toggle("max-h-[400px]", open);
+    menu.classList.toggle("opacity-100", open);
+    menu.classList.toggle("max-h-0", !open);
+    menu.classList.toggle("opacity-0", !open);
+
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    menu.setAttribute("aria-hidden", open ? "false" : "true");
+
+    first.classList.toggle("translate-y-[6.5px]", open);
+    first.classList.toggle("rotate-45", open);
+
+    second.classList.toggle("scale-x-0", open);
+    second.classList.toggle("opacity-0", open);
+
+    third.classList.toggle("-translate-y-[6.5px]", open);
+    third.classList.toggle("-rotate-45", open);
+  }
+
   toggle?.addEventListener("click", () => {
-    const isOpen = menu?.classList.toggle("open");
-    toggle.classList.toggle("open");
-    toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
-    menu?.setAttribute("aria-hidden", isOpen ? "false" : "true");
+    const isOpen = menu?.classList.contains("max-h-[400px]") ?? false;
+    setOpen(!isOpen);
   });
 
-  // Close menu on link click
   menu?.querySelectorAll("a").forEach((link) => {
-    link.addEventListener("click", () => {
-      menu.classList.remove("open");
-      toggle?.classList.remove("open");
-    });
+    link.addEventListener("click", () => setOpen(false));
   });
 </script>

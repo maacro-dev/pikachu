@@ -1,94 +1,130 @@
 ---
 import { getCollection } from "astro:content";
-import Layout from "../layouts/Layout.astro";
-import Header from "../components/Header.astro";
-import Footer from "../components/Footer.astro";
-import Card from "../components/Card.astro";
-import SectionHeader from "../components/SectionHeader.astro";
+import { formatDate } from "@/lib/utils/date";
+import SectionHeader from "@/components/SectionHeader.astro";
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import Card from "@/components/Card.astro";
 
 const districts = (await getCollection("districts")).sort(
-  (a, b) => a.data.order - b.data.order
+  (a, b) => a.data.order - b.data.order,
 );
 
 const events = (await getCollection("events"))
   .filter((e) => e.data.featured)
-  .sort((a, b) => new Date(a.data.date).getTime() - new Date(b.data.date).getTime())
+  .sort(
+    (a, b) => new Date(a.data.date).getTime() - new Date(b.data.date).getTime(),
+  )
   .slice(0, 3);
 
 const attractions = (await getCollection("attractions"))
   .filter((a) => a.data.featured)
   .slice(0, 3);
-
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("en-PH", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
-}
 ---
 
 <Layout title="Iloilo Province | Tourism — Fun. Foodie. Friendly.">
   <Header transparent />
-
-  <section class="hero">
-    <div class="hero__bg">
+  <section class="relative flex h-svh min-h-150 items-end overflow-hidden">
+    <div class="absolute inset-0">
       <img
+        data-hero-img
         src="/images/hero.jpg"
         alt="Iloilo Province"
-        class="hero__img"
+        class="h-[110%] w-full object-cover object-center transition-transform duration-100 will-change-transform"
         fetchpriority="high"
       />
-      <div class="hero__overlay"></div>
-    </div>
-
-    <div class="hero__content container">
-      <div class="hero__badge">Welcome to Iloilo Province</div>
-      <h1 class="hero__title">
-        Fun.<br /><em>Foodie.</em><br />Friendly.
-      </h1>
-      <p class="hero__sub">
-        Discover five vibrant districts, a world-class food scene,<br
-          class="br-desktop"
-        /> and the warmest people in the Philippines.
-      </p>
-      <div class="hero__ctas">
-        <a href="/districts" class="btn btn--primary">Explore Districts</a>
-        <a href="/events" class="btn btn--ghost">Upcoming Events</a>
+      <div
+        class="absolute inset-0 bg-linear-to-t from-deep/85 via-deep/30 to-transparent"
+      >
       </div>
     </div>
 
-    <div class="hero__scroll">
+    <div class="section-container relative z-10 pb-20 text-white">
+      <div
+        class="mb-6 inline-flex rounded-full border border-white/25 bg-white/15 px-4 py-1.5 text-xs font-medium tracking-[0.06em] text-white/90 backdrop-blur-md"
+      >
+        Welcome to Iloilo Province
+      </div>
+
+      <h1
+        class="mb-6 font-display text-[clamp(3.5rem,12vw,9rem)] font-normal leading-none"
+      >
+        Fun.<br />
+        <em class="text-primary">Foodie.</em><br />
+        Friendly.
+      </h1>
+
+      <p
+        class="mb-8 max-w-[45ch] text-[clamp(0.9rem,2vw,1.1rem)] leading-[1.65] text-white/80"
+      >
+        Discover five vibrant districts, a world-class food scene,<br
+          class="hidden md:block"
+        />
+        and the warmest people in the Philippines.
+      </p>
+
+      <div class="flex flex-wrap gap-3">
+        <a
+          href="/districts"
+          class="inline-flex rounded-full bg-primary px-6 py-3 text-[0.87rem] font-semibold tracking-[0.02em] text-foreground transition duration-200 hover:-translate-y-0.5 hover:bg-primary-dark"
+        >
+          Explore Districts
+        </a>
+
+        <a
+          href="/events"
+          class="inline-flex rounded-full border border-white/35 bg-white/15 px-6 py-3 text-[0.87rem] font-semibold tracking-[0.02em] text-white backdrop-blur-md transition duration-200 hover:bg-white/25"
+        >
+          Upcoming Events
+        </a>
+      </div>
+    </div>
+
+    <div
+      class="absolute bottom-8 right-8 z-10 flex flex-col items-center gap-2 text-[0.7rem] font-medium uppercase tracking-widest text-white/60"
+    >
       <span>Scroll</span>
-      <div class="hero__scroll-line"></div>
+      <div
+        class="h-10 w-px origin-top bg-linear-to-b from-white/60 to-transparent animate-[scrollLine_2s_ease_infinite]"
+      >
+      </div>
     </div>
   </section>
 
-  <section class="section container">
+  <section
+    class="section-container min-h-svh flex flex-col justify-center items-center gap-16"
+  >
     <SectionHeader
       label="Five Districts"
       title="Where would you like to go?"
       subtitle="From the vibrant city to UNESCO heritage towns — each district has its own soul."
-      viewAllHref="/districts"
-      viewAllLabel="All districts"
     />
 
-    <div class="district-grid">
+    <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
       {
         districts.map((d) => (
-          <a href={`/districts/${d.slug}`} class="district-card">
-            <div class="district-card__img-wrap">
+          <a
+            href={`/districts/${d.data.slug}`}
+            class="group relative flex aspect-3/4 cursor-pointer overflow-hidden rounded-card"
+          >
+            <div class="absolute inset-0">
               <img
                 src={d.data.heroImage}
                 alt={d.data.name}
-                class="district-card__img"
+                class="h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105"
                 loading="lazy"
               />
-              <div class="district-card__overlay" />
+              <div class="absolute inset-0 bg-linear-to-t from-deep/80 via-deep/10 to-transparent transition-opacity duration-300" />
             </div>
-            <div class="district-card__body">
-              <span class="district-card__tag">{d.data.tagline}</span>
-              <h3 class="district-card__name">{d.data.name}</h3>
+
+            <div class="relative z-10 p-4 text-white">
+              <h3 class="font-display text-[1.1rem] font-bold leading-[1.2]">
+                {d.data.name}
+              </h3>
+              <span class="mb-1 block text-[0.68rem] font-medium tracking-[0.06em] text-white/70">
+                {d.data.tagline}
+              </span>
             </div>
           </a>
         ))
@@ -96,73 +132,98 @@ function formatDate(dateStr: string) {
     </div>
   </section>
 
-  <!-- FEATURED EVENTS -->
   {
     events.length > 0 && (
-      <section class="section container">
-        <SectionHeader
-          label="Events"
-          title="What's happening"
-          viewAllHref="/events"
-          viewAllLabel="All events"
-        />
-        <div class="card-grid card-grid--3">
-          {events.map((e) => (
-            <Card
-              title={e.data.title}
-              description={e.data.description}
-              image={e.data.image}
-              date={formatDate(e.data.date)}
-              tag={e.data.district}
-              href={`/events#${e.slug}`}
-            />
-          ))}
+      <section class="py-20">
+        <div class="section-container">
+          <SectionHeader
+            label="Events"
+            title="What's happening"
+            viewAllHref="/events"
+            viewAllLabel="All events"
+          />
+          <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {events.map((e) => (
+              // e.data.district string is already slug-type
+              <Card
+                title={e.data.title}
+                description={e.data.description}
+                image={e.data.image}
+                date={formatDate(e.data.date)}
+                tag={e.data.district}
+                href={`/events#${e.data.district}`}
+              />
+            ))}
+          </div>
         </div>
       </section>
     )
   }
 
-  <!-- FEATURED ATTRACTIONS -->
   {
     attractions.length > 0 && (
-      <section class="section container">
-        <SectionHeader
-          label="Attractions"
-          title="Places to see"
-          viewAllHref="/attractions"
-          viewAllLabel="All attractions"
-        />
-        <div class="card-grid card-grid--3">
-          {attractions.map((a) => (
-            <Card
-              title={a.data.name}
-              description={a.data.description}
-              image={a.data.image}
-              tag={a.data.district}
-              href="/attractions"
-            />
-          ))}
+      <section class="py-20">
+        <div class="section-container">
+          <SectionHeader
+            label="Attractions"
+            title="Places to see"
+            viewAllHref="/attractions"
+            viewAllLabel="All attractions"
+          />
+          <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {attractions.map((a) => (
+              <Card
+                title={a.data.name}
+                description={a.data.description}
+                image={a.data.image}
+                tag={a.data.district}
+                href="/attractions"
+              />
+            ))}
+          </div>
         </div>
       </section>
     )
   }
 
-  <!-- TASTE OF ILOILO banner -->
-  <section class="taste-banner">
-    <div class="taste-banner__inner container">
-      <div class="taste-banner__text">
-        <span class="taste-banner__label">Food Capital of the Philippines</span>
-        <h2 class="taste-banner__title">
-          Taste the<br /><em>Iloilo</em> difference
+  <!-- Foods -->
+  <section class="mt-16 bg-deep">
+    <div
+      class="section-container flex flex-col items-center gap-12 py-16 md:flex-row md:justify-between"
+    >
+      <div class="flex max-w-[40ch] flex-col gap-4 text-white">
+        <span
+          class="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-primary"
+        >
+          Food Capital of the Philippines
+        </span>
+        <h2
+          class="font-display text-[clamp(2rem,6vw,3.5rem)] font-normal leading-[1.1]"
+        >
+          Taste the<br />
+          <em class="text-primary">Iloilo</em> difference
         </h2>
-        <p>
+        <p class="text-[0.9rem] leading-[1.7] text-white/65">
           From La Paz Batchoy to fresh seafood by the strait — Ilonggo cuisine
           is a love language spoken through every bowl, plate, and bite.
         </p>
-        <a href="/food" class="btn btn--outline-light">Discover Iloilo Food</a>
+        <a
+          href="/food"
+          class="inline-flex w-fit rounded-full border border-white/50 px-6 py-3 text-[0.87rem] font-semibold tracking-[0.02em] text-white transition duration-200 hover:bg-white/15"
+        >
+          Discover Iloilo Food
+        </a>
       </div>
-      <div class="taste-banner__img-wrap">
-        <img src="/images/food/batchoy.jpg" alt="La Paz Batchoy" loading="lazy" />
+
+      <div
+        class="aspect-4/3 w-full max-w-100 shrink-0 overflow-hidden rounded-card"
+      >
+        <img
+          src="/images/food/batchoy.jpg"
+          alt="La Paz Batchoy"
+          class="h-full w-full object-cover"
+          loading="lazy"
+        />
       </div>
     </div>
   </section>
@@ -170,355 +231,27 @@ function formatDate(dateStr: string) {
   <Footer />
 </Layout>
 
-<style>
-  /* HERO */
-  .hero {
-    position: relative;
-    height: 100svh;
-    min-height: 600px;
-    display: flex;
-    align-items: flex-end;
-    overflow: hidden;
-  }
-
-  .hero__bg {
-    position: absolute;
-    inset: 0;
-  }
-
-  .hero__img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center 30%;
-    transition: transform 0.1s linear;
-  }
-
-  .hero__overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      to top,
-      rgba(26, 20, 16, 0.85) 0%,
-      rgba(26, 20, 16, 0.3) 50%,
-      transparent 100%
-    );
-  }
-
-  .hero__content {
-    position: relative;
-    z-index: 2;
-    padding-bottom: 5rem;
-    color: white;
-  }
-
-  .hero__badge {
-    display: inline-block;
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    padding: 0.3rem 0.9rem;
-    border-radius: 100px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    margin-bottom: 1.5rem;
-  }
-
-  .hero__title {
-    font-family: var(--font-display);
-    font-size: clamp(3.5rem, 12vw, 9rem);
-    font-weight: 400;
-    line-height: 1.0;
-    margin-bottom: 1.5rem;
-  }
-
-  .hero__title em {
-    font-style: italic;
-    color: var(--color-terracotta);
-  }
-
-  .hero__sub {
-    font-size: clamp(0.9rem, 2vw, 1.1rem);
-    line-height: 1.65;
-    color: rgba(255, 255, 255, 0.8);
-    margin-bottom: 2rem;
-    max-width: 45ch;
-  }
-
-  .br-desktop {
-    display: none;
-  }
-  @media (min-width: 768px) {
-    .br-desktop { display: block; }
-  }
-
-  .hero__ctas {
-    display: flex;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-  }
-
-  .hero__scroll {
-    position: absolute;
-    bottom: 2rem;
-    right: 2rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 0.7rem;
-    font-weight: 500;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    z-index: 2;
-  }
-
-  .hero__scroll-line {
-    width: 1px;
-    height: 40px;
-    background: linear-gradient(to bottom, rgba(255,255,255,0.6), transparent);
-    animation: scrollLine 2s ease infinite;
-  }
-
-  @keyframes scrollLine {
-    0% { transform: scaleY(0); transform-origin: top; }
-    50% { transform: scaleY(1); transform-origin: top; }
-    51% { transform: scaleY(1); transform-origin: bottom; }
-    100% { transform: scaleY(0); transform-origin: bottom; }
-  }
-
-  /* BUTTONS */
-  .btn {
-    display: inline-block;
-    padding: 0.7rem 1.5rem;
-    border-radius: 100px;
-    font-size: 0.87rem;
-    font-weight: 600;
-    transition: all 0.25s;
-    letter-spacing: 0.02em;
-  }
-
-  .btn--primary {
-    background: var(--color-terracotta);
-    color: white;
-  }
-  .btn--primary:hover {
-    background: #b5633e;
-    transform: translateY(-2px);
-  }
-
-  .btn--ghost {
-    background: rgba(255, 255, 255, 0.15);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    backdrop-filter: blur(8px);
-  }
-  .btn--ghost:hover {
-    background: rgba(255, 255, 255, 0.25);
-  }
-
-  .btn--outline-light {
-    border: 1.5px solid rgba(255,255,255,0.5);
-    color: white;
-    padding: 0.7rem 1.5rem;
-    border-radius: 100px;
-    font-size: 0.87rem;
-    font-weight: 600;
-    transition: all 0.25s;
-  }
-
-  .btn--outline-light:hover {
-    background: rgba(255,255,255,0.15);
-  }
-
-  /* SECTIONS */
-  .section {
-    padding: 5rem 0;
-  }
-
-  /* DISTRICT GRID */
-  .district-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
-  }
-
-  @media (min-width: 640px) {
-    .district-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .district-grid {
-      grid-template-columns: repeat(5, 1fr);
-    }
-  }
-
-  .district-card {
-    position: relative;
-    border-radius: var(--radius-card);
-    overflow: hidden;
-    aspect-ratio: 3/4;
-    display: flex;
-    align-items: flex-end;
-    cursor: pointer;
-  }
-
-  .district-card__img-wrap {
-    position: absolute;
-    inset: 0;
-  }
-
-  .district-card__img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .district-card:hover .district-card__img {
-    transform: scale(1.08);
-  }
-
-  .district-card__overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      to top,
-      rgba(26, 20, 16, 0.8) 0%,
-      rgba(26, 20, 16, 0.1) 60%,
-      transparent 100%
-    );
-    transition: opacity 0.3s;
-  }
-
-  .district-card__body {
-    position: relative;
-    z-index: 1;
-    padding: 1rem;
-    color: white;
-  }
-
-  .district-card__tag {
-    display: block;
-    font-size: 0.68rem;
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.7);
-    letter-spacing: 0.06em;
-    margin-bottom: 0.25rem;
-  }
-
-  .district-card__name {
-    font-family: var(--font-display);
-    font-size: 1.1rem;
-    font-weight: 700;
-    line-height: 1.2;
-  }
-
-  /* CARD GRID */
-  .card-grid {
-    display: grid;
-    gap: 1.25rem;
-  }
-
-  .card-grid--3 {
-    grid-template-columns: 1fr;
-  }
-
-  @media (min-width: 640px) {
-    .card-grid--3 {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .card-grid--3 {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-
-  /* TASTE BANNER */
-  .taste-banner {
-    background: var(--color-deep);
-    margin: 4rem 0 0;
-  }
-
-  .taste-banner__inner {
-    display: flex;
-    flex-direction: column;
-    gap: 3rem;
-    padding-top: 4rem;
-    padding-bottom: 4rem;
-    align-items: center;
-  }
-
-  @media (min-width: 768px) {
-    .taste-banner__inner {
-      flex-direction: row;
-      justify-content: space-between;
-    }
-  }
-
-  .taste-banner__text {
-    color: white;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    max-width: 40ch;
-  }
-
-  .taste-banner__label {
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--color-terracotta);
-  }
-
-  .taste-banner__title {
-    font-family: var(--font-display);
-    font-size: clamp(2rem, 6vw, 3.5rem);
-    font-weight: 400;
-    line-height: 1.1;
-  }
-
-  .taste-banner__title em {
-    font-style: italic;
-    color: var(--color-terracotta);
-  }
-
-  .taste-banner__text p {
-    font-size: 0.9rem;
-    line-height: 1.7;
-    color: rgba(255, 255, 255, 0.65);
-  }
-
-  .taste-banner__img-wrap {
-    width: 100%;
-    max-width: 400px;
-    border-radius: var(--radius-card);
-    overflow: hidden;
-    aspect-ratio: 4/3;
-    flex-shrink: 0;
-  }
-
-  .taste-banner__img-wrap img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-</style>
-
 <script>
-  // Subtle parallax on hero image
-  const heroImg = document.querySelector(".hero__img") as HTMLImageElement;
-  window.addEventListener("scroll", () => {
-    if (heroImg) {
-      heroImg.style.transform = `translateY(${window.scrollY * 0.3}px)`;
-    }
-  }, { passive: true });
+  const heroImg = document.querySelector("[data-hero-img]");
+
+  if (heroImg instanceof HTMLElement) {
+    let current = 0;
+    let target = 0;
+
+    const speed = 0.12;
+
+    const animate = () => {
+      target = window.scrollY;
+
+      current += (target - current) * speed;
+
+      const y = current * 0.2;
+
+      heroImg.style.transform = `translate3d(0, ${y}px, 0)`;
+
+      requestAnimationFrame(animate);
+    };
+
+    requestAnimationFrame(animate);
+  }
 </script>

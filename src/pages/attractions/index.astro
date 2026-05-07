@@ -9,24 +9,19 @@ import Card from "../../components/Card.astro";
 
 const allAttractions = await getCollection("attractions");
 const districts = (await getCollection("districts")).sort(
-  (a, b) => a.data.order - b.data.order
+  (a, b) => a.data.order - b.data.order,
 );
+
 const districtFilters = districts.map((d) => ({
   label: d.data.name,
   value: d.data.slug,
 }));
-
-const selectedDistrict = Astro.url.searchParams.get("district") || "all";
-const filtered =
-  selectedDistrict === "all"
-    ? allAttractions
-    : allAttractions.filter((a) => a.data.district === selectedDistrict);
 ---
 
 <Layout title="Attractions | Iloilo Province Tourism">
   <Header />
 
-  <main class="page-main container">
+  <main class="section-container px-4 pb-16 pt-32 md:px-6 lg:px-8">
     <SectionHeader
       label="Places to See"
       title="Attractions"
@@ -35,27 +30,26 @@ const filtered =
 
     <FilterTabs
       filters={districtFilters}
-      activeFilter={selectedDistrict}
+      activeFilter="all"
       paramName="district"
     />
 
-    <div class="attractions-grid">
+    <div
+      class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 min-h-100"
+    >
       {
-        filtered.length > 0
-          ? filtered.map((a) => (
+        allAttractions.map((a) => {
+          return (
+            <div data-filter={a.data.district}>
               <Card
                 title={a.data.name}
                 description={a.data.description}
                 image={a.data.image}
                 tag={a.data.tags?.[0]}
               />
-            ))
-          : (
-            <div class="empty-state">
-              <p>No attractions found for this district yet.</p>
-              <a href="/attractions">View all</a>
             </div>
-          )
+          );
+        })
       }
     </div>
   </main>
@@ -63,39 +57,16 @@ const filtered =
   <Footer />
 </Layout>
 
-<style>
-  .page-main {
-    padding-top: 8rem;
-    padding-bottom: 4rem;
-  }
+<script>
+  import { initClientFilter } from "@/lib/utils/filter";
 
-  .attractions-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.25rem;
-  }
+  const filter = initClientFilter({
+    filterAttribute: "filter",
+    paramName: "district",
+  });
 
-  @media (min-width: 640px) {
-    .attractions-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .attractions-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-
-  .empty-state {
-    grid-column: 1 / -1;
-    padding: 4rem;
-    text-align: center;
-    color: var(--color-muted);
-  }
-
-  .empty-state a {
-    color: var(--color-terracotta);
-    font-weight: 600;
-  }
-</style>
+  filter.update();
+  document.addEventListener("astro:page-load", () => {
+    filter.update();
+  });
+</script>

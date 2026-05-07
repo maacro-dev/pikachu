@@ -18,17 +18,67 @@ collections:
     format: "frontmatter"
     fields:
       - { label: "Name", name: "name", widget: "string" }
-      - { label: "Slug (URL)", name: "slug", widget: "string", hint: "Use lowercase letters and hyphens, e.g. iloilo-city" }
+      - { label: "Slug (URL)", name: "slug", widget: "string", hint: "Use lowercase letters and hyphens, e.g. first-district" }
       - { label: "Tagline", name: "tagline", widget: "string" }
       - { label: "Short Description", name: "description", widget: "text" }
       - { label: "Hero Image", name: "heroImage", widget: "image" }
-      - label: "Gallery Images"
-        name: "galleryImages"
+
+      - label: "Getting There"
+        name: "gettingThere"
         widget: "list"
-        field: { label: "Image", name: "image", widget: "image" }
         required: false
+        field: { label: "Route / Instruction", name: "route", widget: "string" }
+
+      - label: "Quick Facts"
+        name: "quickFacts"
+        widget: "list"
+        required: false
+        fields:
+          - label: "Icon"
+            name: "icon"
+            widget: "select"
+            options:
+              - { label: "Map Pin", value: "map-pin" }
+              - { label: "Landmark", value: "landmark" }
+              - { label: "Waves", value: "waves" }
+              - { label: "Mountain", value: "mountain" }
+              - { label: "Calendar", value: "calendar" }
+              - { label: "Tree (Pine)", value: "tree-pine" }
+          - { label: "Label", name: "label", widget: "string" }
+          - { label: "Value", name: "value", widget: "string" }
+
+      - label: "Gallery"
+        name: "gallery"
+        widget: "list"
+        required: false
+        fields:
+          - { label: "Image", name: "src", widget: "image" }
+          - { label: "Alt Text", name: "alt", widget: "string" }
+          - { label: "Caption (optional)", name: "caption", widget: "string", required: false }
+
       - { label: "Order (1-5)", name: "order", widget: "number", default: 1 }
       - { label: "Full Content", name: "body", widget: "markdown" }
+
+  - name: "municipalities"
+    label: "Municipalities"
+    label_singular: "Municipality"
+    folder: "src/content/municipalities"
+    create: true
+    extension: "md"
+    format: "frontmatter"
+    fields:
+      - { label: "Name", name: "name", widget: "string" }
+      - { label: "Slug (URL)", name: "slug", widget: "string", hint: "e.g. miagao, iloilo-city" }
+      - label: "District"
+        name: "district"
+        widget: "relation"
+        collection: "districts"
+        search_fields: ["name"]
+        value_field: "slug"
+        display_fields: ["name"]
+        required: true
+      - { label: "Description", name: "description", widget: "text", required: false }
+      - { label: "Image", name: "image", widget: "image", required: false }
 
   - name: "attractions"
     label: "Attractions"
@@ -41,13 +91,20 @@ collections:
       - { label: "Name", name: "name", widget: "string" }
       - label: "District"
         name: "district"
-        widget: "select"
-        options:
-          - { label: "Iloilo City", value: "iloilo-city" }
-          - { label: "Miagao", value: "miagao" }
-          - { label: "Guimbal", value: "guimbal" }
-          - { label: "Tigbauan", value: "tigbauan" }
-          - { label: "Oton", value: "oton" }
+        widget: "relation"
+        collection: "districts"
+        search_fields: ["name"]
+        value_field: "slug"
+        display_fields: ["name"]
+        required: true
+      - label: "Municipality (optional)"
+        name: "municipality"
+        widget: "relation"
+        collection: "municipalities"
+        search_fields: ["name"]
+        value_field: "slug"
+        display_fields: ["name"]
+        required: false
       - { label: "Description", name: "description", widget: "text" }
       - { label: "Image", name: "image", widget: "image" }
       - label: "Tags"
@@ -69,13 +126,20 @@ collections:
       - { label: "Name", name: "name", widget: "string" }
       - label: "District"
         name: "district"
-        widget: "select"
-        options:
-          - { label: "Iloilo City", value: "iloilo-city" }
-          - { label: "Miagao", value: "miagao" }
-          - { label: "Guimbal", value: "guimbal" }
-          - { label: "Tigbauan", value: "tigbauan" }
-          - { label: "Oton", value: "oton" }
+        widget: "relation"
+        collection: "districts"
+        search_fields: ["name"]
+        value_field: "slug"
+        display_fields: ["name"]
+        required: true
+      - label: "Municipality (optional)"
+        name: "municipality"
+        widget: "relation"
+        collection: "municipalities"
+        search_fields: ["name"]
+        value_field: "slug"
+        display_fields: ["name"]
+        required: false
       - { label: "Description", name: "description", widget: "text" }
       - { label: "Image", name: "image", widget: "image" }
       - label: "Type"
@@ -100,13 +164,20 @@ collections:
       - { label: "Festival Name", name: "name", widget: "string" }
       - label: "District"
         name: "district"
-        widget: "select"
-        options:
-          - { label: "Iloilo City", value: "iloilo-city" }
-          - { label: "Miagao", value: "miagao" }
-          - { label: "Guimbal", value: "guimbal" }
-          - { label: "Tigbauan", value: "tigbauan" }
-          - { label: "Oton", value: "oton" }
+        widget: "relation"
+        collection: "districts"
+        search_fields: ["name"]
+        value_field: "slug"
+        display_fields: ["name"]
+        required: true
+      - label: "Municipality (optional)"
+        name: "municipality"
+        widget: "relation"
+        collection: "municipalities"
+        search_fields: ["name"]
+        value_field: "slug"
+        display_fields: ["name"]
+        required: false
       - { label: "Date", name: "date", widget: "string", hint: "e.g. 2025-01-26" }
       - { label: "Month (1-12)", name: "month", widget: "number" }
       - { label: "Description", name: "description", widget: "text" }
@@ -126,13 +197,20 @@ collections:
       - { label: "End Date (optional)", name: "endDate", widget: "string", required: false }
       - label: "District"
         name: "district"
-        widget: "select"
-        options:
-          - { label: "Iloilo City", value: "iloilo-city" }
-          - { label: "Miagao", value: "miagao" }
-          - { label: "Guimbal", value: "guimbal" }
-          - { label: "Tigbauan", value: "tigbauan" }
-          - { label: "Oton", value: "oton" }
+        widget: "relation"
+        collection: "districts"
+        search_fields: ["name"]
+        value_field: "slug"
+        display_fields: ["name"]
+        required: true
+      - label: "Municipality (optional)"
+        name: "municipality"
+        widget: "relation"
+        collection: "municipalities"
+        search_fields: ["name"]
+        value_field: "slug"
+        display_fields: ["name"]
+        required: false
       - { label: "Venue", name: "venue", widget: "string", required: false }
       - { label: "Description", name: "description", widget: "text" }
       - { label: "Image", name: "image", widget: "image" }

@@ -1,8 +1,9 @@
 ---
-name: "Miagao Church"
-district: "miagao"
+name: Miagao Church
+district: first-district
+municipality: miagao
 description: "A UNESCO World Heritage Site and one of the finest examples of Philippine Baroque architecture. The facade features a stunning bas-relief blending Christian and local Filipino motifs — coconut palms, papayas, and Saint Christopher in a tropical paradise."
-image: "/images/attractions/miagao-church.jpg"
+image: https://placehold.co/400x400?text=Placeholder
 tags: ["heritage", "unesco", "architecture", "history"]
 featured: true
 ---
