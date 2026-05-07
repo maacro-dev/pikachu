@@ -22,13 +22,13 @@ quickFacts:
 gallery:
   - src: /images/d1-p1.jpg
     alt: Campo Santo (San Joaquin)
-    caption: Placeholder caption
+    caption: Campo Santo (San Joaquin)
   - src: /images/nadsadjan-2.jpg
     alt: Nasadjan Falls (Igbaras)
-    caption: Placeholder caption
+    caption: Nasadjan Falls (Igbaras)
   - src: /images/kuliatan-marine-sanctuary.jpg
     alt: Kuliatan Marine Sanctuary
-    caption: Placeholder caption
+    caption: Kuliatan Marine Sanctuary
 order: 1
 ---
 The First Congressional District of Iloilo, composed of Oton, Tigbauan, Guimbal, Tubungan, Igbaras, Miagao, and San Joaquin, is known as the province’s Heritage Destination. It features numerous historic sites, including the St. Thomas of Villanova Parish in Miagao, the only UNESCO World Heritage Site in the Visayas and Mindanao.
