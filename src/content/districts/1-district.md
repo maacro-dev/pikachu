@@ -22,10 +22,10 @@ quickFacts:
 gallery:
   - src: /images/d1-p1.jpg
     alt: Campo Santo (San Joaquin)
-    caption: Campo Santo (San Joaquin)
+    caption: Campo Santo
   - src: /images/nadsadjan-2.jpg
     alt: Nasadjan Falls (Igbaras)
-    caption: Nasadjan Falls (Igbaras)
+    caption: Nasadjan Falls
   - src: /images/kuliatan-marine-sanctuary.jpg
     alt: Kuliatan Marine Sanctuary
     caption: Kuliatan Marine Sanctuary
