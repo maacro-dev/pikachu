@@ -2,25 +2,13 @@
 name: District 1
 slug: first-district
 tagline: The Heritage Destination
-description: Heritage towns, coastal landscapes, and historic churches of Iloilo’s western district.
-heroImage: https://placehold.co/600x600?text=Placeholder
-
+description: Heritage towns, coastal landscapes, and historic churches of
+  Iloilo’s western district.
+heroImage: /images/d1-hero.jpg
 gettingThere:
-    - Placeholder step 1
-    - Placeholder step 2
-    - Placeholder step 3
-
-gallery:
-    - src: https://placehold.co/400x400?text=Placeholder
-      alt: Placeholder alt text
-      caption: Placeholder caption
-    - src: https://placehold.co/400x400?text=Placeholder
-      alt: Placeholder alt text
-      caption: Placeholder caption
-    - src: https://placehold.co/400x400?text=Placeholder
-      alt: Placeholder alt text
-      caption: Placeholder caption
-
+  - Placeholder step 1
+  - Placeholder step 2
+  - Placeholder step 3
 quickFacts:
   - icon: map-pin
     label: Placeholder fact
@@ -31,9 +19,17 @@ quickFacts:
   - icon: mountains
     label: Placeholder fact
     value: lorem ipsum
-
+gallery:
+  - src: /images/d1-p1.jpg
+    alt: Campo Santo (San Joaquin)
+    caption: Placeholder caption
+  - src: /images/nadsadjan-2.jpg
+    alt: Nasadjan Falls (Igbaras)
+    caption: Placeholder caption
+  - src: /images/kuliatan-marine-sanctuary.jpg
+    alt: Kuliatan Marine Sanctuary
+    caption: Placeholder caption
 order: 1
-
 ---
 The First Congressional District of Iloilo, composed of Oton, Tigbauan, Guimbal, Tubungan, Igbaras, Miagao, and San Joaquin, is known as the province’s Heritage Destination. It features numerous historic sites, including the St. Thomas of Villanova Parish in Miagao, the only UNESCO World Heritage Site in the Visayas and Mindanao.
 
