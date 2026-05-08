@@ -12,5 +12,5 @@ description: "The St. Nicolas of Tolentine Parish Church, built in Baroque
 image: /images/san-nicolas-de-tolentino-church.jpg
 tags:
   - HERITAGE
-featured: false
+featured: true
 ---
