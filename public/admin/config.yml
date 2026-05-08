@@ -1,6 +1,6 @@
 backend:
   name: github
-  repo: mawmao/pikachu-dev
+  repo: mawmao/pcahto-web
   branch: main
 
 media_folder: "public/images"
