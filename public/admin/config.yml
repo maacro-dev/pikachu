@@ -6,9 +6,8 @@ backend:
 media_folder: "public/images"
 public_folder: "/images"
 
-
-site_url: https://glistening-entremet-e6fa08.netlify.app
-display_url: https://glistening-entremet-e6fa08.netlify.app
+site_url: https://pikachu.maacro-developers.workers.dev
+display_url: https://pikachu.maacro-developers.workers.dev
 
 collections:
   - name: "districts"
