@@ -1,11 +1,11 @@
 backend:
-  # name: git-gateway
   name: github
   repo: mawmao/pikachu-dev
   branch: main
 
 media_folder: "public/images"
 public_folder: "/images"
+
 
 site_url: https://glistening-entremet-e6fa08.netlify.app
 display_url: https://glistening-entremet-e6fa08.netlify.app
