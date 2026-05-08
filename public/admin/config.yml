@@ -1,5 +1,7 @@
 backend:
-  name: git-gateway
+  # name: git-gateway
+  name: github
+  repo: mawmao/pikachu-dev
   branch: main
 
 media_folder: "public/images"
@@ -105,13 +107,17 @@ collections:
         value_field: "slug"
         display_fields: ["name"]
         required: false
+
       - { label: "Description", name: "description", widget: "text" }
+
       - { label: "Image", name: "image", widget: "image" }
+
       - label: "Tags"
         name: "tags"
         widget: "list"
         field: { label: "Tag", name: "tag", widget: "string" }
         required: false
+
       - { label: "Featured on Homepage", name: "featured", widget: "boolean", default: false }
       - { label: "Details", name: "body", widget: "markdown", required: false }
 
