@@ -1,5 +1,4 @@
 ---
-import { getCollection } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
 import Header from "../../components/Header.astro";
 import Footer from "../../components/Footer.astro";
@@ -7,40 +6,41 @@ import Card from "../../components/Card.astro";
 import SectionHeader from "../../components/SectionHeader.astro";
 import { formatDate } from "@/lib/utils/date";
 import { sanitizeSlug } from "@/lib/utils/string";
+import { SupabaseAPI } from "@/lib/api/Supabase";
 
 export async function getStaticPaths() {
-  const municipalities = await getCollection("municipalities");
-  return municipalities.map((m) => ({
-    params: { slug: m.data.slug },
-    props: { municipality: m },
+  const slugs = await SupabaseAPI.municipalities.getSlugs();
+  return slugs.map((slug) => ({
+    params: { slug },
   }));
 }
 
-const { municipality } = Astro.props;
+const { slug } = Astro.params;
 
-const allAttractions = await getCollection("attractions");
-const allFood = await getCollection("food");
-const allFestivals = await getCollection("festivals");
-const allEvents = await getCollection("events");
+if (!slug) {
+  throw new Error("Missing slug");
+}
 
-const slug = municipality.data.slug;
+const municipality = await SupabaseAPI.municipalities.getBySlug(slug);
 
-const attractions = allAttractions.filter((a) => a.data.municipality === slug);
-const food = allFood.filter((f) => f.data.municipality === slug);
-const festivals = allFestivals.filter((f) => f.data.municipality === slug);
-const events = allEvents.filter((e) => e.data.municipality === slug);
+const [attractions, food, festivals, events] = await Promise.all([
+  SupabaseAPI.attractions.getAllByMunicipalityId(municipality.municipality_id),
+  SupabaseAPI.foods.getAllByMunicipalityId(municipality.municipality_id),
+  SupabaseAPI.festivals.getAllByMunicipalityId(municipality.municipality_id),
+  SupabaseAPI.events.getAllByMunicipalityId(municipality.municipality_id),
+]);
 ---
 
 <Layout
-  title={`${municipality.data.name} | Iloilo Province Tourism`}
-  description={municipality.data.description}
+  title={`${municipality.name} | Iloilo Province Tourism`}
+  description={municipality.short_description}
 >
   <Header transparent />
 
   <section class="relative flex h-[70vh] min-h-120 items-end overflow-hidden">
     <img
-      src={municipality.data.image ?? "/images/placeholder.jpg"}
-      alt={municipality.data.name}
+      src={municipality.hero_image ?? "/images/placeholder.jpg"}
+      alt={municipality.name}
       class="absolute inset-0 h-full w-full object-cover"
     />
     <div
@@ -49,24 +49,24 @@ const events = allEvents.filter((e) => e.data.municipality === slug);
     </div>
 
     <div
-      class="section-container relative z-10 flex flex-col gap-2 pb-12 text-white px-4 md:px-6 lg:px-8 "
+      class="section-container relative z-10 flex flex-col gap-2 pb-12 text-white px-4 md:px-6 lg:px-8"
     >
       <a
-        href={`/districts/${municipality.data.district}`}
+        href={`/districts/${municipality.district_slug}`}
         id="back-link"
         class="mb-2 inline-block text-[0.8rem] font-medium text-white/70 transition-colors duration-200 hover:text-white"
       >
-        ← Back to {sanitizeSlug(municipality.data.district)}
+        ← Back to {sanitizeSlug(municipality.district_slug)}
       </a>
       <span
         class="text-[0.75rem] font-semibold uppercase tracking-widest text-primary"
       >
-        {municipality.data.district}
+        {municipality.district_slug}
       </span>
       <h1
         class="font-display text-[clamp(2.5rem,8vw,6rem)] font-normal leading-none"
       >
-        {municipality.data.name}
+        {municipality.name}
       </h1>
     </div>
   </section>
@@ -75,9 +75,9 @@ const events = allEvents.filter((e) => e.data.municipality === slug);
     class="section-container flex flex-col gap-16 py-16 px-4 md:px-6 lg:px-8 min-h-150"
   >
     {
-      municipality.data.description && (
+      municipality.short_description && (
         <section class="prose prose-stone max-w-none text-[1.05rem] leading-[1.8] text-muted">
-          <p>{municipality.data.description}</p>
+          <p>{municipality.short_description}</p>
         </section>
       )
     }
@@ -89,10 +89,10 @@ const events = allEvents.filter((e) => e.data.municipality === slug);
           <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {attractions.map((a) => (
               <Card
-                title={a.data.name}
-                description={a.data.description}
-                image={a.data.image}
-                tag={a.data.tags?.[0]}
+                title={a.name}
+                description={a.short_description}
+                image={a.hero_image}
+                tag={a.tags?.[0]}
               />
             ))}
           </div>
@@ -100,7 +100,6 @@ const events = allEvents.filter((e) => e.data.municipality === slug);
       )
     }
 
-    <!-- Food -->
     {
       food.length > 0 && (
         <section class="flex flex-col">
@@ -108,10 +107,10 @@ const events = allEvents.filter((e) => e.data.municipality === slug);
           <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {food.map((f) => (
               <Card
-                title={f.data.name}
-                description={f.data.description}
-                image={f.data.image}
-                tag={f.data.type}
+                title={f.name}
+                description={f.short_description}
+                image={f.hero_image}
+                tag={f.food_type}
               />
             ))}
           </div>
@@ -127,10 +126,10 @@ const events = allEvents.filter((e) => e.data.municipality === slug);
           <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {festivals.map((f) => (
               <Card
-                title={f.data.name}
-                description={f.data.description}
-                image={f.data.image}
-                date={formatDate(f.data.date)}
+                title={f.name}
+                description={f.short_description}
+                image={f.hero_image}
+                date={formatDate(f.date)}
               />
             ))}
           </div>
@@ -146,11 +145,11 @@ const events = allEvents.filter((e) => e.data.municipality === slug);
           <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {events.map((e) => (
               <Card
-                title={e.data.title}
-                description={e.data.description}
-                image={e.data.image}
-                date={formatDate(e.data.date)}
-                tag={e.data.venue}
+                title={e.name}
+                description={e.short_description}
+                image={e.hero_image}
+                date={formatDate(e.date)}
+                tag={e.venue ?? ""}
               />
             ))}
           </div>
@@ -163,14 +162,20 @@ const events = allEvents.filter((e) => e.data.municipality === slug);
 </Layout>
 
 <script>
-  document.getElementById("back-link").addEventListener("click", (e) => {
-    e.preventDefault();
-    // If there’s a history entry to go back to, use it.
-    // Otherwise fall back to the normal href.
-    if (document.referrer.includes(window.location.origin)) {
-      history.back();
-    } else {
-      window.location.href = e.currentTarget.href;
-    }
-  });
+  const backLink = document.getElementById("back-link");
+
+  if (backLink instanceof HTMLAnchorElement) {
+    backLink.addEventListener("click", (e) => {
+      e.preventDefault();
+
+      const referrer = document.referrer;
+
+      if (referrer && referrer.includes(window.location.origin)) {
+        history.back();
+        return;
+      }
+
+      window.location.href = backLink.href;
+    });
+  }
 </script>

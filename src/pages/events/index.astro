@@ -1,5 +1,4 @@
 ---
-import { getCollection } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
 import Header from "../../components/Header.astro";
 import Footer from "../../components/Footer.astro";
@@ -7,22 +6,17 @@ import SectionHeader from "../../components/SectionHeader.astro";
 import FilterTabs from "../../components/FilterTabs.astro";
 import Card from "../../components/Card.astro";
 import { formatDate } from "@/lib/utils/date";
+import { SupabaseAPI } from "../../lib/api/Supabase";
 
-const allEvents = (await getCollection("events")).sort(
-  (a, b) => new Date(a.data.date).getTime() - new Date(b.data.date).getTime()
-);
+const [allEvents, districtFilters] = await Promise.all([
+  SupabaseAPI.events.getAll(),
+  SupabaseAPI.districts.getFilters(),
+]);
 
-const districts = await getCollection("districts");
-const districtFilters = districts
-  .sort((a, b) => a.data.order - b.data.order)
-  .map((d) => ({ label: d.data.name, value: d.data.slug }));
+const now = new Date();
 
-const upcoming = allEvents.filter(
-  (e) => new Date(e.data.date) >= new Date()
-);
-const past = allEvents.filter(
-  (e) => new Date(e.data.date) < new Date()
-);
+const upcoming = allEvents.filter((e) => new Date(e.date) >= now);
+const past = allEvents.filter((e) => new Date(e.date) < now);
 ---
 
 <Layout title="Events | Iloilo Province Tourism">
@@ -35,35 +29,33 @@ const past = allEvents.filter(
       subtitle="From grand festivals to intimate cultural tours — something's always happening in Iloilo."
     />
 
-    <!-- FilterTabs now purely for UI; the script handles the filtering -->
     <FilterTabs
       filters={districtFilters}
       activeFilter="all"
       paramName="district"
     />
 
-    <!-- UPCOMING SECTION -->
     {
       upcoming.length > 0 ? (
-        <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 min-h-[400px]">
+        <div class="grid grid-cols-1 gap-8 min-h-100 md:grid-cols-2 lg:grid-cols-3">
           {upcoming.map((e) => (
-            <div data-filter={e.data.district}>
+            <div data-filter={e.district_slug}>
               <Card
-                title={e.data.title}
-                description={e.data.description}
-                image={e.data.image}
-                date={formatDate(e.data.date)}
-                tag={e.data.district}
+                title={e.name}
+                description={e.short_description}
+                image={e.hero_image}
+                date={formatDate(e.date)}
+                tag={e.district_name}
                 size="lg"
               />
 
-              {e.data.venue && (
+              {e.venue && (
                 <div class="flex flex-wrap items-center gap-2 px-1">
                   <span class="flex-1 text-[0.78rem] text-muted">
-                    📍 {e.data.venue}
+                    📍 {e.venue}
                   </span>
 
-                  {e.data.tags?.map((tag) => (
+                  {e.tags?.map((tag) => (
                     <span class="rounded-full bg-primary/10 px-2 py-0.5 text-[0.7rem] font-semibold capitalize text-primary">
                       {tag}
                     </span>
@@ -83,7 +75,6 @@ const past = allEvents.filter(
       )
     }
 
-    <!-- PAST EVENTS SECTION (always rendered, but cards may be hidden by filter) -->
     {
       past.length > 0 && (
         <section class="mt-16 border-t border-deep/8 pt-12">
@@ -91,15 +82,15 @@ const past = allEvents.filter(
             Past Events
           </h2>
 
-          <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 min-h-[300px] opacity-65">
+          <div class="grid grid-cols-1 gap-8 min-h-[300px] opacity-65 md:grid-cols-2 lg:grid-cols-3">
             {past.map((e) => (
-              <div data-filter={e.data.district}>
+              <div data-filter={e.district_slug}>
                 <Card
-                  title={e.data.title}
-                  description={e.data.description}
-                  image={e.data.image}
-                  date={formatDate(e.data.date)}
-                  tag={e.data.district}
+                  title={e.name}
+                  description={e.short_description}
+                  image={e.hero_image}
+                  date={formatDate(e.date)}
+                  tag={e.district_name}
                 />
               </div>
             ))}

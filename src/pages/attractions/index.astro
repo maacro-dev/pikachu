@@ -1,21 +1,16 @@
 ---
-import { getCollection } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
 import Header from "../../components/Header.astro";
 import Footer from "../../components/Footer.astro";
 import SectionHeader from "../../components/SectionHeader.astro";
 import FilterTabs from "../../components/FilterTabs.astro";
 import Card from "../../components/Card.astro";
+import { SupabaseAPI } from "../../lib/api/Supabase";
 
-const allAttractions = await getCollection("attractions");
-const districts = (await getCollection("districts")).sort(
-  (a, b) => a.data.order - b.data.order,
-);
-
-const districtFilters = districts.map((d) => ({
-  label: d.data.name,
-  value: d.data.slug,
-}));
+const [allAttractions, districtFilters] = await Promise.all([
+  SupabaseAPI.attractions.getAll(),
+  SupabaseAPI.districts.getFilters(),
+]);
 ---
 
 <Layout title="Attractions | Iloilo Province Tourism">
@@ -34,23 +29,17 @@ const districtFilters = districts.map((d) => ({
       paramName="district"
     />
 
-    <div
-      class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 min-h-100"
-    >
-      {
-        allAttractions.map((a) => {
-          return (
-            <div data-filter={a.data.district}>
-              <Card
-                title={a.data.name}
-                description={a.data.description}
-                image={a.data.image}
-                tag={a.data.tags?.[0]}
-              />
-            </div>
-          );
-        })
-      }
+    <div class="grid min-h-100 grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {allAttractions.map((a) => (
+        <div data-filter={a.district_slug}>
+          <Card
+            title={a.name}
+            description={a.short_description}
+            image={a.hero_image}
+            tag={a.tags?.[0]}
+          />
+        </div>
+      ))}
     </div>
   </main>
 
@@ -66,7 +55,5 @@ const districtFilters = districts.map((d) => ({
   });
 
   filter.update();
-  document.addEventListener("astro:page-load", () => {
-    filter.update();
-  });
+  document.addEventListener("astro:page-load", filter.update);
 </script>

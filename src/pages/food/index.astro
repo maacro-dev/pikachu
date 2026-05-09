@@ -1,20 +1,16 @@
 ---
-import { getCollection } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
 import Header from "../../components/Header.astro";
 import Footer from "../../components/Footer.astro";
 import SectionHeader from "../../components/SectionHeader.astro";
 import FilterTabs from "../../components/FilterTabs.astro";
 import Card from "../../components/Card.astro";
+import { SupabaseAPI } from "../../lib/api/Supabase";
 
-const allFood = await getCollection("food");
-const districts = (await getCollection("districts")).sort(
-  (a, b) => a.data.order - b.data.order
-);
-const districtFilters = districts.map((d) => ({
-  label: d.data.name,
-  value: d.data.slug,
-}));
+const [allFood, districtFilters] = await Promise.all([
+  SupabaseAPI.foods.getAll(),
+  SupabaseAPI.districts.getFilters(),
+]);
 ---
 
 <Layout title="Food | Iloilo Province Tourism">
@@ -33,14 +29,14 @@ const districtFilters = districts.map((d) => ({
       paramName="district"
     />
 
-    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 min-h-[400px]">
+    <div class="grid min-h-[400px] grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
       {allFood.map((f) => (
-        <div data-filter={f.data.district}>
+        <div data-filter={f.district_slug}>
           <Card
-            title={f.data.name}
-            description={f.data.description}
-            image={f.data.image}
-            tag={f.data.type}
+            title={f.name}
+            description={f.short_description}
+            image={f.hero_image}
+            tag={f.food_type}
           />
         </div>
       ))}

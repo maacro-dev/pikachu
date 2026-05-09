@@ -1,0 +1,16 @@
+---
+import remarkParse from 'remark-parse'
+import remarkHtml from 'remark-html'
+import { remark } from "remark"
+
+const { content } = Astro.props
+
+const result = await remark()
+  .use(remarkParse)
+  .use(remarkHtml)
+  .process(content)
+
+const html = String(result)
+---
+
+<div class="prose prose-stone text-[0.9rem] leading-[1.8] text-muted" set:html={html} />

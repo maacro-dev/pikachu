@@ -1,130 +1,91 @@
 ---
-import { getCollection, render } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
 import Header from "../../components/Header.astro";
 import Footer from "../../components/Footer.astro";
 import Card from "../../components/Card.astro";
 import SectionHeader from "../../components/SectionHeader.astro";
-import MapPin from "@/components/icons/MapPin.astro";
 import { iconMap } from "@/lib/utils/icon";
+import Markdown from "@/components/Markdown.astro";
+import { SupabaseAPI } from "@/lib/api/Supabase";
 
 export async function getStaticPaths() {
-  const districts = await getCollection("districts");
-  return districts.map((d) => ({
-    params: { slug: d.data.slug },
-    props: { district: d },
+  const slugs = await SupabaseAPI.districts.getSlugs();
+  return slugs.map((slug) => ({
+    params: { slug },
   }));
 }
 
-const { district } = Astro.props;
-const { Content } = await render(district);
+const { slug } = Astro.params;
 
-const slug = district.data.slug;
-
-const municipalities = await getCollection(
-  "municipalities",
-  ({ data }) => data.district === slug,
-);
+const district = await SupabaseAPI.districts.getBySlug(slug);
+const municipalities = await SupabaseAPI.municipalities.getAllByDistrictId(district.district_id);
 ---
 
-<Layout
-  title={`${district.data.name} | Iloilo Province Tourism`}
-  description={district.data.description}
->
+<Layout title={`${district.name} | Iloilo Province Tourism`} description={district.short_description}>
   <Header transparent />
 
   <section class="relative flex h-[70vh] min-h-120 items-end overflow-hidden">
-    <img
-      src={district.data.heroImage}
-      alt={district.data.name}
-      class="absolute inset-0 h-full w-full object-cover"
-    />
-    <div
-      class="absolute inset-0 bg-linear-to-t from-deep/85 via-deep/20 to-transparent"
-    >
-    </div>
+    <img src={district.hero_image} alt={district.name} class="absolute inset-0 h-full w-full object-cover" />
+    <div class="absolute inset-0 bg-linear-to-t from-deep/85 via-deep/20 to-transparent"></div>
 
-    <div
-      class="section-container relative z-10 flex flex-col gap-2 pb-12 text-white px-4 md:px-6 lg:px-8"
-    >
-      <a
-        href="/districts"
-        class="mb-2 inline-block text-[0.8rem] font-medium text-white/70 transition-colors duration-200 hover:text-white"
-      >
+    <div class="section-container relative z-10 flex flex-col gap-2 pb-12 text-white px-4 md:px-6 lg:px-8">
+      <a href="/districts" class="mb-2 inline-block text-[0.8rem] font-medium text-white/70 hover:text-white">
         ← All Districts
       </a>
 
-      <span
-        class="text-[0.75rem] font-semibold uppercase tracking-widest text-primary"
-      >
-        {district.data.tagline}
+      <span class="text-[0.75rem] font-semibold uppercase tracking-widest text-primary">
+        {district.tagline}
       </span>
 
-      <h1
-        class="font-display text-[clamp(2.5rem,8vw,6rem)] font-normal leading-none"
-      >
-        {district.data.name}
+      <h1 class="font-display text-[clamp(2.5rem,8vw,6rem)] font-normal leading-none">
+        {district.name}
       </h1>
     </div>
   </section>
 
-  <main
-    class="section-container flex flex-col gap-16 py-16 px-4 md:px-6 lg:px-8"
-  >
-    <section class="grid gap-8 md:grid-cols-2 min-h-150 items-start">
+  <main class="section-container flex flex-col gap-16 py-16 px-4 md:px-6 lg:px-8">
+    <section class="grid gap-10 md:grid-cols-2 items-start">
       <div>
         <p class="mb-6 text-[1.10rem] leading-[1.8] text-muted">
-          {district.data.description}
+          {district.short_description}
         </p>
 
-        <div
-          class="prose prose-stone text-[0.9rem] leading-[1.8] text-muted prose-p:my-4"
-        >
-          <Content />
-        </div>
+        <Markdown content={district.body} />
       </div>
 
-      {
-        district.data.gallery && district.data.gallery.length > 0 && (
-          <div class="grid grid-cols-2 gap-3">
-            {district.data.gallery.map((item) => (
-              <figure class="overflow-hidden rounded-xl bg-gray-100">
-                <img
-                  src={item.src}
-                  alt={item.alt}
-                  loading="lazy"
-                  class="aspect-4/3 w-full object-cover"
-                />
-                {item.caption && (
-                  <figcaption class="p-2 text-center text-xs text-muted">
-                    {item.caption}
-                  </figcaption>
-                )}
-              </figure>
-            ))}
-          </div>
-        )
-      }
+      <div>
+        {
+          district.gallery?.length > 0 && (
+            <div class="grid grid-cols-2 gap-3">
+              {district.gallery.map((item) => (
+                <figure class="overflow-hidden rounded-xl bg-gray-100">
+                  <img src={item.url} alt={item.alt ?? ""} class="aspect-4/3 w-full object-cover" />
+                  {item.caption && (
+                    <figcaption class="p-2 text-center text-xs text-muted">{item.caption}</figcaption>
+                  )}
+                </figure>
+              ))}
+            </div>
+          )
+        }
+      </div>
     </section>
 
     {
-      district.data.quickFacts && district.data.quickFacts.length > 0 && (
+      district.quick_facts?.length > 0 && (
         <section>
           <SectionHeader label="At a Glance" title="Quick Facts" />
+
           <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {district.data.quickFacts.map((fact) => {
+            {district.quick_facts.map((fact) => {
               const Icon = iconMap[fact.icon];
 
               return (
                 <div class="flex items-start gap-4 rounded-2xl bg-cream p-5 shadow-sm">
-                  <span class="mt-0.5 text-2xl" aria-hidden="true">
-                    {Icon && <Icon />}
-                  </span>
+                  <span class="mt-0.5 text-2xl">{Icon && <Icon />}</span>
 
                   <div>
-                    <p class="text-xs font-semibold uppercase tracking-wider text-muted">
-                      {fact.label}
-                    </p>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-muted">{fact.label}</p>
                     <p class="text-sm font-medium leading-snug">{fact.value}</p>
                   </div>
                 </div>
@@ -136,11 +97,12 @@ const municipalities = await getCollection(
     }
 
     {
-      district.data.gettingThere && district.data.gettingThere.length > 0 && (
+      district.getting_there_steps?.length > 0 && (
         <section>
           <SectionHeader label="Directions" title="How to Get There" />
+
           <div class="mt-6 space-y-4">
-            {district.data.gettingThere.map((route, idx) => (
+            {district.getting_there_steps.map((route, idx) => (
               <div class="flex gap-4 rounded-xl border border-stone-200 bg-white p-4 shadow-sm">
                 <span class="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
                   {idx + 1}
@@ -153,24 +115,21 @@ const municipalities = await getCollection(
       )
     }
 
-    <section class="flex flex-col">
+    <section>
       <SectionHeader label="Towns" title="Municipalities" />
+
       <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
         {
-          municipalities.map((m) => {
-            return (
-              <Card
-                href={`/municipalities/${m.data.slug}`}
-                title={m.data.name}
-                description={m.data.description}
-                image={m.data.image}
-                tag={m.data.district}
-              />
-            );
-          })
+          municipalities?.map((m) => (
+            <Card
+              href={`/municipalities/${m.municipality_id}`}
+              title={m.name}
+              description={m.short_description}
+              tag={district.name}
+            />
+          ))
         }
       </div>
     </section>
   </main>
-  <Footer />
 </Layout>

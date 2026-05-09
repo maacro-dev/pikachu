@@ -1,26 +1,17 @@
 ---
-import { getCollection } from "astro:content";
 import { formatDate } from "@/lib/utils/date";
 import SectionHeader from "@/components/SectionHeader.astro";
 import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
 import Card from "@/components/Card.astro";
+import { SupabaseAPI } from "@/lib/api/Supabase";
 
-const districts = (await getCollection("districts")).sort(
-  (a, b) => a.data.order - b.data.order,
-);
-
-const events = (await getCollection("events"))
-  .filter((e) => e.data.featured)
-  .sort(
-    (a, b) => new Date(a.data.date).getTime() - new Date(b.data.date).getTime(),
-  )
-  .slice(0, 3);
-
-const attractions = (await getCollection("attractions"))
-  .filter((a) => a.data.featured)
-  .slice(0, 3);
+const [districts, events, attractions] = await Promise.all([
+  SupabaseAPI.districts.getAll(),
+  SupabaseAPI.events.getFeatured(3),
+  SupabaseAPI.attractions.getFeatured(3),
+]);
 ---
 
 <Layout title="Iloilo Province | Tourism — Fun. Foodie. Friendly.">
@@ -105,13 +96,13 @@ const attractions = (await getCollection("attractions"))
       {
         districts.map((d) => (
           <a
-            href={`/districts/${d.data.slug}`}
+            href={`/districts/${d.slug}`}
             class="group relative flex aspect-3/4 cursor-pointer overflow-hidden rounded-card"
           >
             <div class="absolute inset-0">
               <img
-                src={d.data.heroImage}
-                alt={d.data.name}
+                src={d.hero_image}
+                alt={d.name}
                 class="h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105"
                 loading="lazy"
               />
@@ -120,10 +111,10 @@ const attractions = (await getCollection("attractions"))
 
             <div class="relative z-10 p-4 text-white">
               <h3 class="font-display text-[1.1rem] font-bold leading-[1.2]">
-                {d.data.name}
+                {d.name}
               </h3>
               <span class="mb-1 block text-[0.68rem] font-medium tracking-[0.06em] text-white/70">
-                {d.data.tagline}
+                {d.tagline}
               </span>
             </div>
           </a>
@@ -144,14 +135,13 @@ const attractions = (await getCollection("attractions"))
           />
           <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {events.map((e) => (
-              // e.data.district string is already slug-type
               <Card
-                title={e.data.title}
-                description={e.data.description}
-                image={e.data.image}
-                date={formatDate(e.data.date)}
-                tag={e.data.district}
-                href={`/events#${e.data.district}`}
+                title={e.name}
+                description={e.short_description}
+                image={e.hero_image}
+                date={formatDate(e.date)}
+                tag={e.district_name}
+                href={`/events/${e.slug}`}
               />
             ))}
           </div>
@@ -173,11 +163,11 @@ const attractions = (await getCollection("attractions"))
           <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {attractions.map((a) => (
               <Card
-                title={a.data.name}
-                description={a.data.description}
-                image={a.data.image}
-                tag={a.data.district}
-                href="/attractions"
+                title={a.name}
+                description={a.short_description}
+                image={a.hero_image}
+                tag={a.district_name}
+                href={`/attractions/${a.slug}`}
               />
             ))}
           </div>
@@ -186,7 +176,6 @@ const attractions = (await getCollection("attractions"))
     )
   }
 
-  <!-- Foods -->
   <section class="mt-16 bg-deep">
     <div
       class="section-container flex flex-col items-center gap-12 py-16 md:flex-row md:justify-between"
@@ -237,16 +226,13 @@ const attractions = (await getCollection("attractions"))
   if (heroImg instanceof HTMLElement) {
     let current = 0;
     let target = 0;
-
     const speed = 0.12;
 
     const animate = () => {
       target = window.scrollY;
-
       current += (target - current) * speed;
 
       const y = current * 0.2;
-
       heroImg.style.transform = `translate3d(0, ${y}px, 0)`;
 
       requestAnimationFrame(animate);

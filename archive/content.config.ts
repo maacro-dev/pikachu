@@ -12,7 +12,6 @@ const districts = defineCollection({
     description: z.string(),
     heroImage: z.string(),
     gettingThere: z.array(z.string()).optional().default([]),
-
     quickFacts: z.array(
       z.object({
         icon: z.string(),
