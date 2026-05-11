@@ -3,6 +3,8 @@ README.md
 
 node_modules/
 
+supabase/.temp
+
 dist/
 .astro/
 
