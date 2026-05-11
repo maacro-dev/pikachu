@@ -6,13 +6,16 @@ import cloudflare from "@astrojs/cloudflare"
 
 
 export default defineConfig({
-  output: "server",
-  adapter: cloudflare(),
-  integrations: [react()],
-  vite: {
-      plugins: [tailwindcss()],
-      resolve: {
-          alias: { "@": "/src", },
-      },
-  },
+    output: "server",
+    adapter: cloudflare(),
+    integrations: [react()],
+    vite: {
+        plugins: [tailwindcss()],
+        resolve: {
+            alias: { "@": "/src", },
+        },
+        define: {
+            "process.env": process.env
+        }
+    },
 });
