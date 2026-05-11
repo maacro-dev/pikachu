@@ -1,11 +1,7 @@
 {
   "name": "pikachu",
   "compatibility_date": "2026-05-11",
-  "compatibility_flags": [
-    "nodejs_compat"
-  ],
-  "main": "./dist/server/entry.mjs",
   "assets": {
-    "directory": "./dist/client"
+    "directory": "./dist"
   }
 }
