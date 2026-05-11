@@ -6,6 +6,6 @@
         "global_fetch_strictly_public"
     ],
     "assets": {
-        "directory": "./dist/client"
+        "directory": "./dist"
     }
 }
