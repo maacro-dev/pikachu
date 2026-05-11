@@ -14,8 +14,5 @@ export default defineConfig({
         resolve: {
             alias: { "@": "/src", },
         },
-        define: {
-            "process.env": process.env
-        }
     },
 });
