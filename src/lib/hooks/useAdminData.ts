@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { SupabaseAPI } from "../api/Supabase";
+import { parseNormalizedDistrictArray } from "../schemas/district.schema";
+import { parseNormalizedMunicipalityArray } from "../schemas/municipality.schema";
 
 function normalizeContent(item: any, type: string) {
   return {
@@ -15,7 +17,7 @@ function normalizeContent(item: any, type: string) {
     main_image: item.hero_image
       ? { url: item.hero_image, alt: item.hero_alt || item.name }
       : null,
-    gallery_images: Array.isArray(item.gallery) ? item.gallery : [],
+    gallery_images: Array.isArray(item.gallery) ? item.gallery.filter((g: any) => g?.url) : [],
     district_id: String(item.district_id || ""),
     municipality_id: String(item.municipality_id || ""),
     district_name: item.district_name || "",
@@ -29,6 +31,7 @@ function normalizeContent(item: any, type: string) {
   };
 }
 
+// react land function
 export function useAdminData() {
   const [data, setData] = useState({
     districts: [] as any[],
@@ -83,7 +86,7 @@ export function useAdminData() {
             main_image: d.hero_image
               ? { url: d.hero_image, alt: d.hero_alt || d.name }
               : null,
-            gallery_images: Array.isArray(d.gallery) ? d.gallery : [],
+            gallery_images: Array.isArray(d.gallery) ? d.gallery.filter((g: any) => g?.url) : [],
           })),
 
           municipalities: municipalitiesRaw.map((m: any) => ({
@@ -99,7 +102,7 @@ export function useAdminData() {
             main_image: m.hero_image
               ? { url: m.hero_image, alt: m.name }
               : null,
-            gallery_images: Array.isArray(m.gallery) ? m.gallery : [],
+            gallery_images: Array.isArray(m.gallery) ? m.gallery.filter((g: any) => g?.url) : [],
           })),
 
           attractions: attractionsRaw.map((a: any) => normalizeContent(a, "attractions")),
@@ -119,4 +122,62 @@ export function useAdminData() {
   }, []);
 
   return data;
+}
+
+
+
+// astro land function
+export async function getAdminData() {
+  try {
+    const [
+      districtsRaw,
+      municipalitiesRaw,
+      attractionsRaw,
+      foodsRaw,
+      festivalsRaw,
+      eventsRaw,
+    ] = await Promise.all([
+      SupabaseAPI.districts.getAllAdmin(),
+      SupabaseAPI.municipalities.getAll(),
+      SupabaseAPI.attractions.getAll(),
+      SupabaseAPI.foods.getAll(),
+      SupabaseAPI.festivals.getAll(),
+      SupabaseAPI.events.getAll(),
+    ]);
+
+    const districts = parseNormalizedDistrictArray(districtsRaw)
+    const municipalities = parseNormalizedMunicipalityArray(municipalitiesRaw)
+
+    return {
+      districts,
+      municipalities,
+      attractions: (attractionsRaw ?? []).map((a: any) =>
+        normalizeContent(a, "attractions")
+      ),
+      foods: (foodsRaw ?? []).map((f: any) =>
+        normalizeContent(f, "foods")
+      ),
+      festivals: festivalsRaw.map((f: any) =>
+        normalizeContent(f, "festivals")
+      ),
+      events: eventsRaw.map((e: any) =>
+        normalizeContent(e, "events")
+      ),
+      loading: false,
+      error: null,
+    };
+  } catch (error) {
+    console.error("Failed to fetch admin data:", error);
+
+    return {
+      districts: [],
+      municipalities: [],
+      attractions: [],
+      foods: [],
+      festivals: [],
+      events: [],
+      loading: false,
+      error,
+    };
+  }
 }

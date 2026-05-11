@@ -10,6 +10,7 @@ import { SupabaseAPI } from "@/lib/api/Supabase";
 
 export async function getStaticPaths() {
   const slugs = await SupabaseAPI.municipalities.getSlugs();
+
   return slugs.map((slug) => ({
     params: { slug },
   }));
@@ -22,6 +23,10 @@ if (!slug) {
 }
 
 const municipality = await SupabaseAPI.municipalities.getBySlug(slug);
+
+if (!municipality) {
+  throw new Error("Municipality not found");
+}
 
 const [attractions, food, festivals, events] = await Promise.all([
   SupabaseAPI.attractions.getAllByMunicipalityId(municipality.municipality_id),

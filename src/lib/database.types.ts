@@ -37,18 +37,24 @@ export type Database = {
       attraction: {
         Row: {
           content_id: string
+          created_at: string
           id: string
           municipality_id: string
+          updated_at: string
         }
         Insert: {
           content_id: string
+          created_at?: string
           id?: string
           municipality_id: string
+          updated_at?: string
         }
         Update: {
           content_id?: string
+          created_at?: string
           id?: string
           municipality_id?: string
+          updated_at?: string
         }
         Relationships: [
           {
@@ -147,6 +153,7 @@ export type Database = {
       content: {
         Row: {
           body: string | null
+          created_at: string
           featured: boolean | null
           id: string
           name: string
@@ -156,9 +163,11 @@ export type Database = {
           status: Database["public"]["Enums"]["content_status"] | null
           tags: string[] | null
           type: Database["public"]["Enums"]["content_type"] | null
+          updated_at: string
         }
         Insert: {
           body?: string | null
+          created_at?: string
           featured?: boolean | null
           id?: string
           name: string
@@ -168,9 +177,11 @@ export type Database = {
           status?: Database["public"]["Enums"]["content_status"] | null
           tags?: string[] | null
           type?: Database["public"]["Enums"]["content_type"] | null
+          updated_at?: string
         }
         Update: {
           body?: string | null
+          created_at?: string
           featured?: boolean | null
           id?: string
           name?: string
@@ -180,27 +191,34 @@ export type Database = {
           status?: Database["public"]["Enums"]["content_status"] | null
           tags?: string[] | null
           type?: Database["public"]["Enums"]["content_type"] | null
+          updated_at?: string
         }
         Relationships: []
       }
       content_media: {
         Row: {
           content_id: string
+          created_at: string
           display_order: number | null
           media_id: string
           role: Database["public"]["Enums"]["media_role"]
+          updated_at: string
         }
         Insert: {
           content_id: string
+          created_at?: string
           display_order?: number | null
           media_id: string
           role: Database["public"]["Enums"]["media_role"]
+          updated_at?: string
         }
         Update: {
           content_id?: string
+          created_at?: string
           display_order?: number | null
           media_id?: string
           role?: Database["public"]["Enums"]["media_role"]
+          updated_at?: string
         }
         Relationships: [
           {
@@ -264,27 +282,33 @@ export type Database = {
       district: {
         Row: {
           content_id: string
+          created_at: string
           display_order: number | null
           getting_there_steps: string[] | null
           id: string
           quick_facts: Json | null
           tagline: string | null
+          updated_at: string
         }
         Insert: {
           content_id: string
+          created_at?: string
           display_order?: number | null
           getting_there_steps?: string[] | null
           id?: string
           quick_facts?: Json | null
           tagline?: string | null
+          updated_at?: string
         }
         Update: {
           content_id?: string
+          created_at?: string
           display_order?: number | null
           getting_there_steps?: string[] | null
           id?: string
           quick_facts?: Json | null
           tagline?: string | null
+          updated_at?: string
         }
         Relationships: [
           {
@@ -341,26 +365,32 @@ export type Database = {
       event: {
         Row: {
           content_id: string
+          created_at: string
           date: string | null
           end_date: string | null
           id: string
           municipality_id: string
+          updated_at: string
           venue: string | null
         }
         Insert: {
           content_id: string
+          created_at?: string
           date?: string | null
           end_date?: string | null
           id?: string
           municipality_id: string
+          updated_at?: string
           venue?: string | null
         }
         Update: {
           content_id?: string
+          created_at?: string
           date?: string | null
           end_date?: string | null
           id?: string
           municipality_id?: string
+          updated_at?: string
           venue?: string | null
         }
         Relationships: [
@@ -460,21 +490,27 @@ export type Database = {
       festival: {
         Row: {
           content_id: string
+          created_at: string
           date: string | null
           id: string
           municipality_id: string
+          updated_at: string
         }
         Insert: {
           content_id: string
+          created_at?: string
           date?: string | null
           id?: string
           municipality_id: string
+          updated_at?: string
         }
         Update: {
           content_id?: string
+          created_at?: string
           date?: string | null
           id?: string
           municipality_id?: string
+          updated_at?: string
         }
         Relationships: [
           {
@@ -573,21 +609,27 @@ export type Database = {
       food: {
         Row: {
           content_id: string
+          created_at: string
           id: string
           municipality_id: string
           type: Database["public"]["Enums"]["food_type"] | null
+          updated_at: string
         }
         Insert: {
           content_id: string
+          created_at?: string
           id?: string
           municipality_id: string
           type?: Database["public"]["Enums"]["food_type"] | null
+          updated_at?: string
         }
         Update: {
           content_id?: string
+          created_at?: string
           id?: string
           municipality_id?: string
           type?: Database["public"]["Enums"]["food_type"] | null
+          updated_at?: string
         }
         Relationships: [
           {
@@ -687,19 +729,25 @@ export type Database = {
         Row: {
           alt: string | null
           caption: string | null
+          created_at: string
           id: string
+          updated_at: string
           url: string
         }
         Insert: {
           alt?: string | null
           caption?: string | null
+          created_at?: string
           id?: string
+          updated_at?: string
           url: string
         }
         Update: {
           alt?: string | null
           caption?: string | null
+          created_at?: string
           id?: string
+          updated_at?: string
           url?: string
         }
         Relationships: []
@@ -707,18 +755,24 @@ export type Database = {
       municipality: {
         Row: {
           content_id: string
+          created_at: string
           district_id: string
           id: string
+          updated_at: string
         }
         Insert: {
           content_id: string
+          created_at?: string
           district_id: string
           id?: string
+          updated_at?: string
         }
         Update: {
           content_id?: string
+          created_at?: string
           district_id?: string
           id?: string
+          updated_at?: string
         }
         Relationships: [
           {
@@ -866,6 +920,7 @@ export type Database = {
           status: Database["public"]["Enums"]["content_status"] | null
           tagline: string | null
           tags: string[] | null
+          type: Database["public"]["Enums"]["content_type"] | null
         }
         Relationships: []
       }
@@ -1020,6 +1075,23 @@ export type Database = {
       }
     }
     Functions: {
+      create_attraction: {
+        Args: {
+          p_body: string
+          p_gallery_images?: Json
+          p_main_image?: Json
+          p_municipality_id: string
+          p_name: string
+          p_short_description: string
+          p_slug: string
+          p_status?: Database["public"]["Enums"]["content_status"]
+          p_tags: string[]
+        }
+        Returns: {
+          attraction_id: string
+          content_id: string
+        }[]
+      }
       create_district: {
         Args: {
           p_body: string
@@ -1039,6 +1111,178 @@ export type Database = {
           content_id: string
           district_id: string
         }[]
+      }
+      create_event: {
+        Args: {
+          p_body: string
+          p_date: string
+          p_end_date?: string
+          p_gallery_images?: Json
+          p_main_image?: Json
+          p_municipality_id: string
+          p_name: string
+          p_short_description: string
+          p_slug: string
+          p_status?: Database["public"]["Enums"]["content_status"]
+          p_tags: string[]
+          p_venue?: string
+        }
+        Returns: {
+          content_id: string
+          event_id: string
+        }[]
+      }
+      create_festival: {
+        Args: {
+          p_body: string
+          p_date: string
+          p_gallery_images?: Json
+          p_main_image?: Json
+          p_municipality_id: string
+          p_name: string
+          p_short_description: string
+          p_slug: string
+          p_status?: Database["public"]["Enums"]["content_status"]
+          p_tags: string[]
+        }
+        Returns: {
+          content_id: string
+          festival_id: string
+        }[]
+      }
+      create_food: {
+        Args: {
+          p_body: string
+          p_food_type: Database["public"]["Enums"]["food_type"]
+          p_gallery_images?: Json
+          p_main_image?: Json
+          p_municipality_id: string
+          p_name: string
+          p_short_description: string
+          p_slug: string
+          p_status?: Database["public"]["Enums"]["content_status"]
+          p_tags: string[]
+        }
+        Returns: {
+          content_id: string
+          food_id: string
+        }[]
+      }
+      create_municipality: {
+        Args: {
+          p_body: string
+          p_district_id: string
+          p_gallery_images?: Json
+          p_main_image?: Json
+          p_name: string
+          p_short_description: string
+          p_slug: string
+          p_status?: Database["public"]["Enums"]["content_status"]
+          p_tags: string[]
+        }
+        Returns: {
+          content_id: string
+          municipality_id: string
+        }[]
+      }
+      update_attraction: {
+        Args: {
+          p_body: string
+          p_content_id: string
+          p_gallery_images?: Json
+          p_main_image?: Json
+          p_municipality_id: string
+          p_name: string
+          p_short_description: string
+          p_slug: string
+          p_status?: Database["public"]["Enums"]["content_status"]
+          p_tags: string[]
+        }
+        Returns: undefined
+      }
+      update_district: {
+        Args: {
+          p_body: string
+          p_content_id: string
+          p_display_order: number
+          p_district_id: string
+          p_gallery_images?: Json
+          p_getting_there_steps: string[]
+          p_main_image?: Json
+          p_name: string
+          p_quick_facts?: Json
+          p_short_description: string
+          p_slug: string
+          p_status?: Database["public"]["Enums"]["content_status"]
+          p_tagline: string
+          p_tags: string[]
+        }
+        Returns: undefined
+      }
+      update_event: {
+        Args: {
+          p_body: string
+          p_content_id: string
+          p_date: string
+          p_end_date?: string
+          p_gallery_images?: Json
+          p_main_image?: Json
+          p_municipality_id: string
+          p_name: string
+          p_short_description: string
+          p_slug: string
+          p_status?: Database["public"]["Enums"]["content_status"]
+          p_tags: string[]
+          p_venue?: string
+        }
+        Returns: undefined
+      }
+      update_festival: {
+        Args: {
+          p_body: string
+          p_content_id: string
+          p_date: string
+          p_gallery_images?: Json
+          p_main_image?: Json
+          p_municipality_id: string
+          p_name: string
+          p_short_description: string
+          p_slug: string
+          p_status?: Database["public"]["Enums"]["content_status"]
+          p_tags: string[]
+        }
+        Returns: undefined
+      }
+      update_food: {
+        Args: {
+          p_body: string
+          p_content_id: string
+          p_food_type: Database["public"]["Enums"]["food_type"]
+          p_gallery_images?: Json
+          p_main_image?: Json
+          p_municipality_id: string
+          p_name: string
+          p_short_description: string
+          p_slug: string
+          p_status?: Database["public"]["Enums"]["content_status"]
+          p_tags: string[]
+        }
+        Returns: undefined
+      }
+      update_municipality: {
+        Args: {
+          p_body: string
+          p_content_id: string
+          p_district_id: string
+          p_gallery_images?: Json
+          p_main_image?: Json
+          p_name: string
+          p_short_description: string
+          p_slug: string
+          p_status?: Database["public"]["Enums"]["content_status"]
+          p_tags: string[]
+        }
+        Returns: undefined
       }
     }
     Enums: {

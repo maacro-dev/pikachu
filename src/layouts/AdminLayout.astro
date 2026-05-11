@@ -1,0 +1,88 @@
+---
+import "@/styles/global.css";
+import AdminShell from "./AdminShell";
+import { ClientRouter } from "astro:transitions";
+import { getAdminData } from "@/lib/hooks/useAdminData";
+
+const { title = "Dashboard", email } = Astro.props;
+
+const pathname = Astro.url.pathname;
+const data = await getAdminData();
+
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} | Admin</title>
+
+    <ClientRouter />
+  </head>
+
+  <body class="bg-admin-background text-admin-foreground">
+    <AdminShell client:load path={pathname} email={email}>
+      <slot />
+    </AdminShell>
+
+    <script
+      is:inline
+      id="admin-data"
+      type="application/json"
+      set:html={JSON.stringify({ data, path: pathname })}
+    />
+  </body>
+</html>
+
+<script>
+  document.addEventListener("astro:before-preparation", (event) => {
+    const originalLoader = event.loader;
+
+    event.loader = async function () {
+      const overlay = document.getElementById("loading-overlay");
+      const isAdmin = window.location.pathname.startsWith("/admin");
+
+      if (overlay && isAdmin) {
+        overlay.classList.add("admin");
+      } else if (overlay) {
+        overlay.classList.remove("admin");
+      }
+
+      let showTimer;
+      let shown = false;
+
+      if (overlay) {
+        showTimer = setTimeout(() => {
+          overlay.classList.remove("done");
+          overlay.classList.add("loading");
+          shown = true;
+        }, 200);
+      }
+
+      await originalLoader();
+
+      if (overlay) {
+        clearTimeout(showTimer);
+
+        if (shown) {
+          overlay.classList.remove("loading");
+          overlay.classList.add("done");
+          setTimeout(() => overlay.classList.remove("done"), 300);
+        }
+      }
+    };
+  });
+</script>
+
+<script>
+  import { $adminData } from "@/lib/store/admin-store";
+  function initStore() {
+    const el = document.getElementById("admin-data");
+    const parsed = JSON.parse(el?.textContent ?? "{}");
+    $adminData.setKey("data", parsed.data);
+    $adminData.setKey("hydrated", true);
+  }
+
+  initStore();
+  document.addEventListener("astro:page-load", initStore);
+</script>

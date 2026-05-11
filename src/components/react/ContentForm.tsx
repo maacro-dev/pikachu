@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import {
   useForm,
   Controller,
@@ -10,11 +10,12 @@ import { Field } from "./Field";
 import { TagsInput } from "./TagsInput";
 import { Select } from "./Select";
 import { ImageUpload } from "./ImageUpload";
-import { Toggle } from "./Toggle";
 import { Textarea } from "./Textarea";
 import { GettingThereSteps } from "./GettingThereSteps";
 import { QuickFacts } from "./QuickFacts";
 import { GalleryUpload, type GalleryItem } from "./GalleryUpload";
+import { FileText, Globe } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type ContentStatus = "draft" | "published";
 type FoodTypeEnum = "local" | "street" | "restaurant" | "seafood" | "dessert";
@@ -103,7 +104,6 @@ const SectionHeader = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
-
 function getDefaults(type: string): ContentFormData {
   const base: BaseContentFields = {
     name: "",
@@ -118,13 +118,7 @@ function getDefaults(type: string): ContentFormData {
 
   switch (type) {
     case "district":
-      return {
-        ...base,
-        tagline: "",
-        getting_there_steps: [],
-        display_order: 1,
-        quick_facts: {},
-      } as DistrictFormData;
+      return { ...base, tagline: "", getting_there_steps: [], display_order: 1, quick_facts: {} } as DistrictFormData;
     case "municipality":
       return { ...base, district_id: "" } as MunicipalityFormData;
     case "attractions":
@@ -134,17 +128,49 @@ function getDefaults(type: string): ContentFormData {
     case "festivals":
       return { ...base, municipality_id: "", date: "" } as FestivalFormData;
     case "events":
-      return {
-        ...base,
-        municipality_id: "",
-        date: "",
-        end_date: "",
-        venue: "",
-      } as EventFormData;
+      return { ...base, municipality_id: "", date: "", end_date: "", venue: "" } as EventFormData;
     default:
       return { ...base, district_id: "" } as MunicipalityFormData;
   }
 }
+
+
+function StatusBanner({
+  status,
+  onUnpublish,
+}: {
+  status: ContentStatus;
+  onUnpublish: () => void;
+}) {
+  const isPublished = status === "published";
+  return (
+    <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#130f08] border border-admin-border text-[12px] mb-6">
+      <span className={cn(
+        "w-1.5 h-1.5 rounded-full shrink-0",
+        isPublished ? "bg-emerald-400" : "bg-[#3e3020]"
+      )} />
+      <span className="text-admin-secondary">
+        Currently{" "}
+        <span className={cn(
+          "font-semibold",
+          isPublished ? "text-emerald-400" : "text-admin-secondary"
+        )}>
+          {isPublished ? "published" : "draft"}
+        </span>
+      </span>
+      {isPublished && (
+        <button
+          type="button"
+          onClick={onUnpublish}
+          className="ml-auto text-[11px] text-admin-secondary hover:text-amber-500 transition-colors"
+        >
+          Unpublish
+        </button>
+      )}
+    </div>
+  );
+}
+
 
 export default function ContentForm({
   initialData = {},
@@ -159,7 +185,6 @@ export default function ContentForm({
     control,
     handleSubmit,
     setValue,
-    getValues,
     formState: { errors },
   } = useForm<ContentFormData>({
     defaultValues: { ...getDefaults(type), ...initialData },
@@ -167,17 +192,26 @@ export default function ContentForm({
 
   const selectedDistrictId = useWatch({ control, name: "district_id" });
 
-  const saveAs =
-    (status: ContentStatus): SubmitHandler<ContentFormData> =>
-      (data) => {
-        onSave({ ...data, status });
-      };
+  const saveAs = (status: ContentStatus): SubmitHandler<ContentFormData> =>
+    (data) => onSave({ ...data, status });
 
   const handleSaveDraft = handleSubmit(saveAs("draft"));
   const handlePublish = handleSubmit(saveAs("published"));
+  const handleUnpublish = handleSubmit(saveAs("draft"));
+
+  const isCurrentlyPublished = initialData?.status === "published";
+  const slugManuallyEdited = useRef(!!initialData?.slug);
 
   return (
     <div className="flex flex-col gap-6">
+
+      {initialData?.status && (
+        <StatusBanner
+          status={initialData.status}
+          onUnpublish={handleUnpublish}
+        />
+      )}
+
       <section>
         <SectionHeader>Core Information</SectionHeader>
         <div className="grid grid-cols-2 gap-4 mb-4">
@@ -185,29 +219,29 @@ export default function ContentForm({
             <Input
               {...register("name", {
                 required: "Name is required",
-                onChange: (e) => setValue("slug", autoSlug(e.target.value)),
+                onChange: (e) => {
+                  if (!slugManuallyEdited.current) {
+                    setValue("slug", autoSlug(e.target.value));
+                  }
+                },
               })}
               placeholder="e.g. Miagao Church"
             />
           </Field>
-
           <Field label="Slug" hint="Auto-generated from name — used in URLs">
             <Input
-              {...register("slug")}
+              {...register("slug", {
+                onChange: () => {
+                  slugManuallyEdited.current = true;
+                },
+              })}
               placeholder="e.g. miagao-church"
             />
           </Field>
         </div>
-
-        <Field
-          label="Short Description"
-          required
-          error={errors.short_description?.message}
-        >
+        <Field label="Short Description" required error={errors.short_description?.message}>
           <Textarea
-            {...register("short_description", {
-              required: "Short description is required",
-            })}
+            {...register("short_description", { required: "Short description is required" })}
             placeholder="Brief summary shown on cards and listings..."
             rows={2}
           />
@@ -227,18 +261,12 @@ export default function ContentForm({
             <Field label="Display Order">
               <Input
                 type="number"
-                {...register("display_order" as keyof ContentFormData, {
-                  valueAsNumber: true,
-                })}
+                {...register("display_order" as keyof ContentFormData, { valueAsNumber: true })}
               />
             </Field>
           </div>
-
           <div className="mb-4">
-            <Field
-              label="Getting There Steps"
-              hint="Add each step in order"
-            >
+            <Field label="Getting There Steps" hint="Add each step in order">
               <Controller
                 control={control}
                 name={"getting_there_steps" as keyof ContentFormData}
@@ -251,7 +279,6 @@ export default function ContentForm({
               />
             </Field>
           </div>
-
           <Field label="Quick Facts" hint="Key-value pairs shown on the district page">
             <Controller
               control={control}
@@ -267,6 +294,7 @@ export default function ContentForm({
         </section>
       )}
 
+      {/* ── Municipality Details ── */}
       {type === "municipality" && (
         <section>
           <SectionHeader>Municipality Details</SectionHeader>
@@ -280,10 +308,7 @@ export default function ContentForm({
                   value={field.value ?? ""}
                   onChange={field.onChange}
                   placeholder="Select a district..."
-                  options={districts.map((d) => ({
-                    value: String(d.id),
-                    label: d.name,
-                  }))}
+                  options={districts.map((d) => ({ value: String(d.id), label: d.name }))}
                 />
               )}
             />
@@ -291,6 +316,7 @@ export default function ContentForm({
         </section>
       )}
 
+      {/* ── Location ── */}
       {["attractions", "foods", "festivals", "events"].includes(type) && (
         <section>
           <SectionHeader>Location</SectionHeader>
@@ -304,20 +330,13 @@ export default function ContentForm({
                     value={field.value ?? ""}
                     onChange={(v) => {
                       field.onChange(v);
-                      setValue(
-                        "municipality_id" as keyof ContentFormData,
-                        "" as any
-                      );
+                      setValue("municipality_id" as keyof ContentFormData, "" as any);
                     }}
                     placeholder="First select district..."
-                    options={districts.map((d) => ({
-                      value: String(d.id),
-                      label: d.name,
-                    }))}
+                    options={districts.map((d) => ({ value: String(d.id), label: d.name }))}
                   />
                 )}
               />
-
               <Controller
                 control={control}
                 name={"municipality_id" as keyof ContentFormData}
@@ -328,10 +347,9 @@ export default function ContentForm({
                     onChange={field.onChange}
                     placeholder="Select municipality..."
                     options={municipalities
-                      .filter(
-                        (m) =>
-                          !selectedDistrictId ||
-                          String(m.district_id) === String(selectedDistrictId)
+                      .filter((m) =>
+                        !selectedDistrictId ||
+                        String(m.district_id) === String(selectedDistrictId)
                       )
                       .map((m) => ({ value: String(m.id), label: m.name }))}
                   />
@@ -342,6 +360,7 @@ export default function ContentForm({
         </section>
       )}
 
+      {/* ── Food Details ── */}
       {type === "foods" && (
         <section>
           <SectionHeader>Food Details</SectionHeader>
@@ -353,18 +372,9 @@ export default function ContentForm({
                 <Select
                   value={(field.value as string) ?? "local"}
                   onChange={field.onChange}
-                  options={(
-                    [
-                      "local",
-                      "street",
-                      "restaurant",
-                      "seafood",
-                      "dessert",
-                    ] as const
-                  ).map((t) => ({
-                    value: t,
-                    label: t.charAt(0).toUpperCase() + t.slice(1),
-                  }))}
+                  options={(["local", "street", "restaurant", "seafood", "dessert"] as const).map(
+                    (t) => ({ value: t, label: t.charAt(0).toUpperCase() + t.slice(1) })
+                  )}
                 />
               )}
             />
@@ -372,6 +382,7 @@ export default function ContentForm({
         </section>
       )}
 
+      {/* ── Date & Venue ── */}
       {(type === "festivals" || type === "events") && (
         <section>
           <SectionHeader>Date & Venue</SectionHeader>
@@ -379,18 +390,13 @@ export default function ContentForm({
             <Field label="Date" required>
               <Input
                 type="date"
-                {...register("date" as keyof ContentFormData, {
-                  required: "Date is required",
-                })}
+                {...register("date" as keyof ContentFormData, { required: "Date is required" })}
               />
             </Field>
             {type === "events" && (
               <>
                 <Field label="End Date">
-                  <Input
-                    type="date"
-                    {...register("end_date" as keyof ContentFormData)}
-                  />
+                  <Input type="date" {...register("end_date" as keyof ContentFormData)} />
                 </Field>
                 <Field label="Venue">
                   <Input
@@ -404,10 +410,11 @@ export default function ContentForm({
         </section>
       )}
 
+      {/* ── Media ── */}
       <section>
         <SectionHeader>Media</SectionHeader>
         <div className="flex flex-col gap-6">
-          <Field label="Main Image" hint="Primary image shown on cards and the detail page header">
+          <Field label="Main Image" hint="Primary image shown on cards and the detail page header" required>
             <Controller
               control={control}
               name="main_image"
@@ -416,7 +423,6 @@ export default function ContentForm({
               )}
             />
           </Field>
-
           <Field label="Gallery" hint="Additional images — hover a thumbnail to add a caption or remove it">
             <Controller
               control={control}
@@ -432,12 +438,10 @@ export default function ContentForm({
         </div>
       </section>
 
+      {/* ── Full Content ── */}
       <section>
         <SectionHeader>Full Content</SectionHeader>
-        <Field
-          label="Body"
-          hint="Supports plain text. Markdown rendering coming soon."
-        >
+        <Field label="Body" hint="Supports plain text. Markdown rendering coming soon.">
           <Textarea
             {...register("body")}
             placeholder="Write detailed content here..."
@@ -446,52 +450,44 @@ export default function ContentForm({
         </Field>
       </section>
 
+      {/* ── Tags ── */}
       <section>
-        <SectionHeader>Tags & Settings</SectionHeader>
-        <div className="flex flex-col gap-4">
-          <Field label="Tags" hint="Press Add or Enter to add each tag">
-            <Controller
-              control={control}
-              name="tags"
-              render={({ field }) => (
-                <TagsInput value={field.value} onChange={field.onChange} />
-              )}
-            />
-          </Field>
-
+        <SectionHeader>Tags</SectionHeader>
+        <Field label="Tags" hint="Press Add or Enter to add each tag">
           <Controller
             control={control}
-            name="status"
+            name="tags"
             render={({ field }) => (
-              <Toggle
-                checked={field.value === "published"}
-                onChange={(v) => field.onChange(v ? "published" : "draft")}
-                label="Published"
-              />
+              <TagsInput value={field.value} onChange={field.onChange} />
             )}
           />
-        </div>
+        </Field>
       </section>
 
+      {/* ── Footer ── */}
       <div className="flex gap-2.5 pt-2 border-t border-admin-border">
         <button
           type="button"
           onClick={handleSaveDraft}
-          className="px-5 py-2.5 rounded-lg border border-admin-input bg-transparent text-admin-primary font-semibold text-[13px] cursor-pointer hover:bg-admin-border"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-lg border border-admin-input bg-transparent text-admin-primary font-semibold text-[13px] cursor-pointer hover:bg-admin-border transition-colors"
         >
-          Save Draft
+          <FileText size={13} />
+          Save as Draft
         </button>
+
         <button
           type="button"
           onClick={handlePublish}
-          className="px-6 py-2.5 rounded-lg bg-amber-500 text-[#1a1208] font-bold text-[13px] cursor-pointer hover:bg-amber-400"
+          className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-[#1a1208] font-bold text-[13px] cursor-pointer transition-colors"
         >
-          Publish
+          <Globe size={13} />
+          {isCurrentlyPublished ? "Update & Keep Published" : "Publish"}
         </button>
+
         <button
           type="button"
           onClick={onCancel}
-          className="ml-auto px-5 py-2.5 rounded-lg bg-transparent text-admin-secondary text-[13px] cursor-pointer hover:text-white/80"
+          className="ml-auto px-5 py-2.5 rounded-lg bg-transparent text-admin-secondary text-[13px] cursor-pointer hover:text-white/80 transition-colors"
         >
           Cancel
         </button>

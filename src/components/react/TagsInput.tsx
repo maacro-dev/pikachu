@@ -9,6 +9,7 @@ interface TagsInputProps {
 }
 
 export function TagsInput({ value = [], onChange }: TagsInputProps) {
+  const safeValue = value ?? [];
   const [input, setInput] = useState("");
   const add = () => {
     const t = input.trim().toLowerCase();
@@ -17,7 +18,7 @@ export function TagsInput({ value = [], onChange }: TagsInputProps) {
   return (
     <div>
       <div className="flex flex-wrap gap-2 mb-2">
-        {value.map(tag => (
+        {safeValue.map(tag => (
           <span key={tag} className="flex items-center gap-2 bg-admin-accent text-admin-primary px-2.5 py-1 rounded-2xl text-xs font-medium">
             {tag}
             <button

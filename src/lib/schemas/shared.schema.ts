@@ -22,7 +22,7 @@ export const baseContentSchema = z.object({
   featured: z.boolean().catch(false),
   status: z.enum(["draft", "published"]),
   published_at: z.string().nullable(),
-  hero_image: z.string(),
+  hero_image: z.string().catch("https://placehold.co/400x400?text=Placeholder"),
   hero_alt: z.string().nullable(),
   gallery: z.array(galleryItemSchema).optional().default([]),
 });

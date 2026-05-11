@@ -1,3 +1,4 @@
+-- 2_views.sql
 
 create view district_view as
 select
@@ -9,6 +10,7 @@ select
     c.short_description,
     c.body,
     c.tags,
+    c.type,
     c.featured,
     c.status,
     c.published_at,
@@ -51,9 +53,7 @@ left join lateral (
     where cm.content_id = c.id
       and cm.role = 'gallery'
 ) g on true
-
-where c.status = 'published'
-  and c.type = 'district';
+where c.type = 'district';
 
 
 create view municipality_view as

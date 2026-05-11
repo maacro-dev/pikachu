@@ -6,11 +6,23 @@ export async function getAll(): Promise<District[]> {
   const { data, error } = await supabase
     .from("district_view")
     .select("*")
+    .eq("status", "published")
     .order("display_order", { ascending: true });
 
   if (error) throw error;
   return parseDistrictArray(data);
 }
+
+export async function getAllAdmin(): Promise<District[]> {
+  const { data, error } = await supabase
+    .from("district_view")
+    .select("*")
+    .order("display_order", { ascending: true });
+
+  if (error) throw error;
+  return parseDistrictArray(data);
+}
+
 
 export async function getSlugs(): Promise<string[]> {
   const { data, error } = await supabase

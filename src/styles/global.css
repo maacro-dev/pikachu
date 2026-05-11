@@ -1,9 +1,5 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-/* @import "shadcn/tailwind.css"; */
-/* @import "@fontsource-variable/geist"; */
-
-/* @custom-variant dark (&:is(.dark *)); */
 @plugin "@tailwindcss/typography";
 
 @theme {
@@ -131,6 +127,16 @@
 .loading-overlay.loading {
   opacity: 1;
   pointer-events: auto;
+}
+
+.loading-overlay.admin {
+  background: rgba(10, 7, 3, 0.65);
+  backdrop-filter: blur(10px);
+}
+
+.loading-overlay.admin .spinner {
+  border: 4px solid rgba(168, 150, 124, 0.2);
+  border-top-color: var(--color-admin-primary);
 }
 
 .loading-overlay.done {

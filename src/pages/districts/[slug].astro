@@ -1,7 +1,6 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import Header from "../../components/Header.astro";
-import Footer from "../../components/Footer.astro";
 import Card from "../../components/Card.astro";
 import SectionHeader from "../../components/SectionHeader.astro";
 import { iconMap } from "@/lib/utils/icon";
@@ -17,8 +16,14 @@ export async function getStaticPaths() {
 
 const { slug } = Astro.params;
 
+if (!slug) return Astro.redirect("/404");
+
 const district = await SupabaseAPI.districts.getBySlug(slug);
+
+if (!district) return Astro.redirect("/404");
+
 const municipalities = await SupabaseAPI.municipalities.getAllByDistrictId(district.district_id);
+
 ---
 
 <Layout title={`${district.name} | Iloilo Province Tourism`} description={district.short_description}>
@@ -122,7 +127,7 @@ const municipalities = await SupabaseAPI.municipalities.getAllByDistrictId(distr
         {
           municipalities?.map((m) => (
             <Card
-              href={`/municipalities/${m.municipality_id}`}
+              href={`/municipalities/${m.slug}`}
               title={m.name}
               description={m.short_description}
               tag={district.name}

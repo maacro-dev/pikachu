@@ -20,10 +20,6 @@ export function GalleryUpload({ value = [], onChange }: GalleryUploadProps) {
 
   const handleFiles = (files: FileList | null) => {
     if (!files) return;
-    const tooBig = Array.from(files).filter((f) => f.size > 5 * 1024 * 1024);
-    if (tooBig.length) {
-      alert(`${tooBig.length} file(s) exceed 5MB and were skipped.`);
-    }
     const valid = Array.from(files).filter((f) => f.size <= 5 * 1024 * 1024);
     const newItems: GalleryItem[] = valid.map((file, i) => ({
       url: URL.createObjectURL(file),

@@ -1,0 +1,21 @@
+---
+export const prerender = false
+
+import { SectionView } from "@/components/react/SectionView";
+import AdminLayout from "@/layouts/AdminLayout.astro";
+
+import { getAuthenticatedUser } from "@/lib/utils/auth";
+
+const user = await getAuthenticatedUser(Astro.cookies);
+
+if (!user) {
+  Astro.cookies.delete("sb-access-token", { path: "/admin" });
+  Astro.cookies.delete("sb-refresh-token", { path: "/admin" });
+  return Astro.redirect("/admin/auth");
+}
+
+---
+
+<AdminLayout title="Districts" email={user.email}>
+  <SectionView client:only path={Astro.url.pathname} type="districts"/>
+</AdminLayout>

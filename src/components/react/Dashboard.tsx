@@ -2,23 +2,11 @@ import React from "react";
 import { Icon } from "./Icon";
 import { cn } from "@/lib/utils";
 import { StatusBadge } from "./StatusBadge";
+import { useStore } from "@nanostores/react"
+import { $adminData } from "@/lib/store/admin-store";
 
 export type ContentStatus = "published" | "draft" | (string & {});
 type ContentType = | "district" | "municipality" | "attractions" | "festivals" | "foods" | "events" | (string & {});
-
-interface ContentItem {
-  id: string;
-  name: string;
-  slug: string;
-  status: ContentStatus;
-  type: ContentType;
-}
-
-interface DashboardProps {
-  districts: unknown[];
-  municipalities: unknown[];
-  content: ContentItem[];
-}
 
 type StatIcon = "district" | "municipality" | "globe" | "check";
 
@@ -46,7 +34,11 @@ const STAT_ICON_STYLES: Record<StatIcon, string> = {
   check: "text-emerald-400",
 };
 
-export function Dashboard({ districts, municipalities, content }: DashboardProps) {
+export function Dashboard() {
+
+  const { data: { districts, municipalities, attractions, foods, festivals, events } } = useStore($adminData);
+  const content = [...attractions, ...foods, ...festivals, ...events];
+
   const stats: StatItem[] = [
     {
       label: "Districts",
@@ -82,7 +74,7 @@ export function Dashboard({ districts, municipalities, content }: DashboardProps
         <h1 className="font-display text-[clamp(2rem,5vw,3.2rem)] text-admin-foreground">
           Dashboard
         </h1>
-        <p className="m-0 text-[13px] text-[#5c5040]">
+        <p className="m-0 text-[13px] text-admin-secondary">
           Welcome back — here&apos;s your content overview.
         </p>
       </div>
@@ -96,7 +88,7 @@ export function Dashboard({ districts, municipalities, content }: DashboardProps
             <div className="text-2xl font-semibold leading-none text-admin-foreground">
               {s.value}
             </div>
-            <div className="text-xs font-bold uppercase tracking-widest text-[#5c5040]">
+            <div className="text-xs font-bold uppercase tracking-widest text-admin-secondary">
               {s.label}
             </div>
           </div>
@@ -104,7 +96,7 @@ export function Dashboard({ districts, municipalities, content }: DashboardProps
       </div>
 
       <div>
-        <div className="mb-4 text-[10px] font-extrabold uppercase tracking-[0.14em] text-[#5c5040]">
+        <div className="mb-4 text-[10px] font-extrabold uppercase tracking-[0.14em] text-admin-secondary">
           Recent Content
         </div>
 
@@ -116,7 +108,7 @@ export function Dashboard({ districts, municipalities, content }: DashboardProps
                 <div className="truncate text-[13px] font-semibold text-admin-foreground">
                   {item.name}
                 </div>
-                <div className="font-mono text-[11px] text-[#5c5040]">
+                <div className="font-mono text-[11px] text-admin-secondary">
                   {item.slug}
                 </div>
               </div>

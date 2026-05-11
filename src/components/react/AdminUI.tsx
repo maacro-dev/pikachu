@@ -1,7 +1,6 @@
+import React from "react";
 import { useState } from "react";
 import { useAdminData } from "@/lib/hooks/useAdminData";
-import { ChartBar, ExternalLink, Folder, IceCreamBowl, LayoutDashboard, List, Users } from "lucide-react"
-import React from 'react';
 import { Drawer } from "./Drawer";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "../ui/sidebar";
 import { AppSidebar, type SidebarItem } from "./Sidebar";
@@ -13,46 +12,8 @@ import { SectionView } from "./SectionView";
 import { TypeBadge } from "./TypeBadge";
 import type { District } from "@/lib/schemas/district.schema";
 import { quickFactsToArray } from "@/lib/utils/quick-facts";
-
-const items: SidebarItem[] = [
-  {
-    title: "Dashboard",
-    url: "dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Districts",
-    url: "districts",
-    icon: List,
-  },
-  {
-    title: "Municipalities",
-    url: "municipalities",
-    icon: ChartBar,
-  },
-  {
-    title: "Attractions",
-    url: "attractions",
-    icon: Folder,
-  },
-  {
-    title: "Festivals",
-    url: "festivals",
-    icon: Users,
-  },
-  {
-    title: "Foods",
-    url: "foods",
-    icon: IceCreamBowl,
-  },
-  {
-    title: "Events",
-    url: "events",
-    icon: Users,
-  },
-]
-
-
+import { SupabaseAPI } from "@/lib/api/Supabase";
+import { Topbar } from "./Topbar";
 
 
 type Section =
@@ -81,42 +42,7 @@ const singularize = (s: string) =>
   s.endsWith("ies") ? s.slice(0, -3) + "y" : s.replace(/s$/, "");
 
 
-function Breadcrumb({ section }: { section: string }) {
-  if (section === "dashboard") return null;
-  return (
-    <span className="font-mono text-[11px] text-[#3e3020] hidden sm:block">
-      content{" "}
-      <span className="text-admin-input">/</span>{" "}
-      <span className="text-admin-secondary">{section}</span>
-    </span>
-  );
-}
 
-function Topbar({ section }: { section: string }) {
-  return (
-    <header className="h-14 px-4 flex items-center justify-between border-b border-admin-border shrink-0 gap-4">
-      <div className="flex items-center gap-3">
-        <SidebarTrigger className="text-[#3e3020] hover:text-admin-primary transition-colors" />
-        <div className="w-px h-4 bg-admin-border" />
-        <Breadcrumb section={section} />
-      </div>
-      <a
-        href="/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className={cn(
-          "flex items-center gap-1.5 text-[11px] font-medium px-3 py-1.5 rounded-md",
-          "border border-admin-border text-admin-secondary",
-          "hover:border-amber-500/30 hover:text-amber-500/80",
-          "transition-colors"
-        )}
-      >
-        <ExternalLink size={11} />
-        View site
-      </a>
-    </header>
-  );
-}
 
 export default function AdminUI() {
   const [activeSection, setActiveSection] = useState<Section>("dashboard");
@@ -131,6 +57,7 @@ export default function AdminUI() {
     ...(data.festivals ?? []),
     ...(data.events ?? []),
   ];
+
 
   const sectionItems: Record<string, any[]> = {
     districts: data.districts ?? [],
@@ -192,24 +119,64 @@ export default function AdminUI() {
   const openEdit = (item: any) => { setEditingItem(item); setDrawerOpen(true); };
   const closeDrawer = () => { setDrawerOpen(false); setEditingItem(null); };
 
-  const handleSave = (formData: any) => {
-    const payload = {
-      ...formData,
-      ...(formData.quick_facts && {
-        quick_facts: quickFactsToArray(formData.quick_facts),
-      }),
-      hero_image: formData.main_image?.url ?? null,
-      hero_alt: formData.main_image?.alt ?? null,
-      gallery: formData.gallery_images ?? [],
-      main_image: undefined,
-      gallery_images: undefined,
-    };
-    console.log("Save:", payload);
-    closeDrawer();
+  const handleSave = async (formData: any) => {
+    try {
+      const type = getTypeForSection(activeSection);
+      const isEditing = !!editingItem;
+
+      const quickFacts = formData.quick_facts
+        ? quickFactsToArray(formData.quick_facts)
+        : [];
+
+      const base = { ...formData, quick_facts: quickFacts };
+
+      if (type === "district") {
+        if (isEditing) {
+          await SupabaseAPI.admin.updateDistrict(editingItem.content_id, editingItem.id, base);
+        } else {
+          await SupabaseAPI.admin.createDistrict(base);
+        }
+      } else if (type === "municipality") {
+        if (isEditing) {
+          await SupabaseAPI.admin.updateMunicipality(editingItem.content_id, editingItem.id, base);
+        } else {
+          await SupabaseAPI.admin.createMunicipality(base);
+        }
+      } else {
+        const contentType = type as "attractions" | "foods" | "festivals" | "events";
+        if (isEditing) {
+          await SupabaseAPI.admin.updateContent(contentType, editingItem.content_id, editingItem.id, base);
+        } else {
+          await SupabaseAPI.admin.createContent(contentType, base);
+        }
+      }
+
+      window.location.reload();
+      closeDrawer();
+    } catch (err) {
+      console.error("Save failed:", err);
+      alert("Failed to save. Check the console for details.");
+    }
   };
 
-  const handleDelete = (id: string | number) => {
-    console.log("Delete:", id);
+  const handleDelete = async (id: string | number) => {
+    try {
+      const type = getTypeForSection(activeSection);
+      if (type === "district") {
+        await SupabaseAPI.admin.deleteDistrict(String(id));
+      } else if (type === "municipality") {
+        await SupabaseAPI.admin.deleteMunicipality(String(id));
+      } else {
+        await SupabaseAPI.admin.deleteContent(
+          type as "attractions" | "foods" | "festivals" | "events",
+          String(id)
+        );
+      }
+      window.location.reload();
+    } catch (err) {
+      console.error("Delete failed:", err);
+      alert("Failed to delete. Check the console for details.");
+    }
   };
 
   const currentNav = items.find((n) => n.url === activeSection);
@@ -243,7 +210,6 @@ export default function AdminUI() {
     <TooltipProvider>
       <SidebarProvider>
         <AppSidebar
-          items={items}
           activeItem={activeSection}
           onItemClick={(item: SidebarItem) => setActiveSection(item.url as Section)}
         />

@@ -1,3 +1,4 @@
+-- 1_functions.sql
 
 create or replace function create_district(
     p_name text,
@@ -94,9 +95,9 @@ begin
         );
     end if;
 
-    -- 4. insert gallery images
     for v_item in
         select * from jsonb_array_elements(p_gallery_images)
+        where value->>'url' is not null and value->>'url' != ''
     loop
         insert into media (id, url, alt, caption)
         values (
@@ -123,6 +124,78 @@ begin
 
     return query
     select v_district_id, v_content_id;
+end;
+$$;
+
+create or replace function update_district(
+  p_content_id uuid,
+  p_district_id uuid,
+  p_name text,
+  p_slug text,
+  p_short_description text,
+  p_body text,
+  p_tags text[],
+  p_tagline text,
+  p_getting_there_steps text[],
+  p_display_order int,
+  p_quick_facts jsonb default '[]'::jsonb,
+  p_status content_status default 'published',
+  p_main_image jsonb default null,
+  p_gallery_images jsonb default '[]'::jsonb
+)
+returns void language plpgsql as $$
+declare
+  v_media_id uuid;
+  v_item jsonb;
+begin
+  -- Update content
+  update content set
+    name = p_name,
+    slug = p_slug,
+    short_description = p_short_description,
+    body = regexp_replace(p_body, '^[ \t]+', '', 'gm'),
+    tags = p_tags,
+    status = p_status,
+    published_at = case
+      when p_status = 'published' and published_at is null then now()
+      else published_at
+    end
+  where id = p_content_id;
+
+  -- Update district
+  update district set
+    tagline = p_tagline,
+    getting_there_steps = p_getting_there_steps,
+    quick_facts = p_quick_facts,
+    display_order = p_display_order
+  where id = p_district_id;
+
+  -- Replace main image
+  delete from content_media where content_id = p_content_id and role = 'main';
+
+  if p_main_image is not null and p_main_image->>'url' is not null then
+    insert into media (id, url, alt, caption)
+    values (gen_random_uuid(), p_main_image->>'url', p_main_image->>'alt', p_main_image->>'caption')
+    returning id into v_media_id;
+
+    insert into content_media (content_id, media_id, role, display_order)
+    values (p_content_id, v_media_id, 'main', 1);
+  end if;
+
+  -- Replace gallery
+  delete from content_media where content_id = p_content_id and role = 'gallery';
+
+  for v_item in
+    select value from jsonb_array_elements(p_gallery_images) as value
+    where value->>'url' is not null and value->>'url' != ''
+  loop
+    insert into media (id, url, alt, caption)
+    values (gen_random_uuid(), v_item->>'url', v_item->>'alt', v_item->>'caption')
+    returning id into v_media_id;
+
+    insert into content_media (content_id, media_id, role, display_order)
+    values (p_content_id, v_media_id, 'gallery', coalesce((v_item->>'order')::int, 1));
+  end loop;
 end;
 $$;
 
@@ -211,10 +284,11 @@ begin
             'main',
             1
         );
-    end if;
+        end if;
 
     for v_item in
-        select * from jsonb_array_elements(p_gallery_images)
+    select * from jsonb_array_elements(p_gallery_images)
+    where value->>'url' is not null and value->>'url' != ''
     loop
         insert into media (id, url, alt, caption)
         values (
@@ -241,6 +315,67 @@ begin
 
     return query
     select v_municipality_id, v_content_id;
+end;
+$$;
+
+create or replace function update_municipality(
+  p_content_id uuid,
+  p_district_id uuid,
+  p_name text,
+  p_slug text,
+  p_short_description text,
+  p_body text,
+  p_tags text[],
+  p_status content_status default 'published',
+  p_main_image jsonb default null,
+  p_gallery_images jsonb default '[]'::jsonb
+)
+returns void language plpgsql as $$
+declare
+  v_media_id uuid;
+  v_item jsonb;
+begin
+  update content set
+    name = p_name,
+    slug = p_slug,
+    short_description = p_short_description,
+    body = regexp_replace(p_body, '^[ \t]+', '', 'gm'),
+    tags = p_tags,
+    status = p_status,
+    published_at = case
+      when p_status = 'published' and published_at is null then now()
+      else published_at
+    end
+  where id = p_content_id;
+
+  update municipality set
+    district_id = p_district_id
+  where content_id = p_content_id;
+
+  delete from content_media where content_id = p_content_id and role = 'main';
+
+  if p_main_image is not null and p_main_image->>'url' is not null then
+    insert into media (id, url, alt, caption)
+    values (gen_random_uuid(), p_main_image->>'url', p_main_image->>'alt', p_main_image->>'caption')
+    returning id into v_media_id;
+
+    insert into content_media (content_id, media_id, role, display_order)
+    values (p_content_id, v_media_id, 'main', 1);
+  end if;
+
+  delete from content_media where content_id = p_content_id and role = 'gallery';
+
+  for v_item in
+    select value from jsonb_array_elements(p_gallery_images) as value
+    where value->>'url' is not null and value->>'url' != ''
+  loop
+    insert into media (id, url, alt, caption)
+    values (gen_random_uuid(), v_item->>'url', v_item->>'alt', v_item->>'caption')
+    returning id into v_media_id;
+
+    insert into content_media (content_id, media_id, role, display_order)
+    values (p_content_id, v_media_id, 'gallery', coalesce((v_item->>'order')::int, 1));
+  end loop;
 end;
 $$;
 
@@ -326,12 +461,13 @@ begin
             v_content_id,
             v_media_id,
             'main',
-            1
-        );
-    end if;
+                1
+            );
+        end if;
 
-    for v_item in
-        select * from jsonb_array_elements(p_gallery_images)
+for v_item in
+    select * from jsonb_array_elements(p_gallery_images)
+    where value->>'url' is not null and value->>'url' != ''
     loop
         insert into media (id, url, alt, caption)
         values (
@@ -361,7 +497,57 @@ begin
 end;
 $$;
 
+create or replace function update_attraction(
+  p_content_id uuid,
+  p_municipality_id uuid,
+  p_name text,
+  p_slug text,
+  p_short_description text,
+  p_body text,
+  p_tags text[],
+  p_status content_status default 'published',
+  p_main_image jsonb default null,
+  p_gallery_images jsonb default '[]'::jsonb
+)
+returns void language plpgsql as $$
+declare
+  v_media_id uuid;
+  v_item jsonb;
+begin
+  update content set
+    name = p_name, slug = p_slug, short_description = p_short_description,
+    body = regexp_replace(p_body, '^[ \t]+', '', 'gm'), tags = p_tags, status = p_status,
+    published_at = case when p_status = 'published' and published_at is null then now() else published_at end
+  where id = p_content_id;
 
+  update attraction set municipality_id = p_municipality_id where content_id = p_content_id;
+
+  delete from content_media where content_id = p_content_id and role = 'main';
+
+  if p_main_image is not null and p_main_image->>'url' is not null then
+    insert into media (id, url, alt, caption)
+    values (gen_random_uuid(), p_main_image->>'url', p_main_image->>'alt', p_main_image->>'caption')
+    returning id into v_media_id;
+
+    insert into content_media (content_id, media_id, role, display_order)
+    values (p_content_id, v_media_id, 'main', 1);
+  end if;
+
+  delete from content_media where content_id = p_content_id and role = 'gallery';
+
+  for v_item in
+    select value from jsonb_array_elements(p_gallery_images) as value
+    where value->>'url' is not null and value->>'url' != ''
+  loop
+    insert into media (id, url, alt, caption)
+    values (gen_random_uuid(), v_item->>'url', v_item->>'alt', v_item->>'caption')
+    returning id into v_media_id;
+
+    insert into content_media (content_id, media_id, role, display_order)
+    values (p_content_id, v_media_id, 'gallery', coalesce((v_item->>'order')::int, 1));
+  end loop;
+end;
+$$;
 
 
 
@@ -445,14 +631,15 @@ begin
         )
         values (
             v_content_id,
-            v_media_id,
-            'main',
-            1
+                v_media_id,
+                'main',
+                1
         );
     end if;
 
-    for v_item in
-        select * from jsonb_array_elements(p_gallery_images)
+for v_item in
+    select * from jsonb_array_elements(p_gallery_images)
+    where value->>'url' is not null and value->>'url' != ''
     loop
         insert into media (id, url, alt, caption)
         values (
@@ -482,7 +669,58 @@ begin
 end;
 $$;
 
+create or replace function update_food(
+  p_content_id uuid,
+  p_municipality_id uuid,
+  p_name text,
+  p_slug text,
+  p_short_description text,
+  p_body text,
+  p_tags text[],
+  p_food_type food_type,
+  p_status content_status default 'published',
+  p_main_image jsonb default null,
+  p_gallery_images jsonb default '[]'::jsonb
+)
+returns void language plpgsql as $$
+declare
+  v_media_id uuid;
+  v_item jsonb;
+begin
+  update content set
+    name = p_name, slug = p_slug, short_description = p_short_description,
+    body = regexp_replace(p_body, '^[ \t]+', '', 'gm'), tags = p_tags, status = p_status,
+    published_at = case when p_status = 'published' and published_at is null then now() else published_at end
+  where id = p_content_id;
 
+  update food set municipality_id = p_municipality_id, type = p_food_type where content_id = p_content_id;
+
+  delete from content_media where content_id = p_content_id and role = 'main';
+
+  if p_main_image is not null and p_main_image->>'url' is not null then
+    insert into media (id, url, alt, caption)
+    values (gen_random_uuid(), p_main_image->>'url', p_main_image->>'alt', p_main_image->>'caption')
+    returning id into v_media_id;
+
+    insert into content_media (content_id, media_id, role, display_order)
+    values (p_content_id, v_media_id, 'main', 1);
+  end if;
+
+  delete from content_media where content_id = p_content_id and role = 'gallery';
+
+  for v_item in
+    select value from jsonb_array_elements(p_gallery_images) as value
+    where value->>'url' is not null and value->>'url' != ''
+  loop
+    insert into media (id, url, alt, caption)
+    values (gen_random_uuid(), v_item->>'url', v_item->>'alt', v_item->>'caption')
+    returning id into v_media_id;
+
+    insert into content_media (content_id, media_id, role, display_order)
+    values (p_content_id, v_media_id, 'gallery', coalesce((v_item->>'order')::int, 1));
+  end loop;
+end;
+$$;
 
 
 create or replace function create_festival(
@@ -563,16 +801,17 @@ begin
             role,
             display_order
         )
-        values (
-            v_content_id,
-            v_media_id,
+            values (
+                v_content_id,
+                v_media_id,
             'main',
             1
         );
     end if;
 
-    for v_item in
-        select * from jsonb_array_elements(p_gallery_images)
+for v_item in
+    select * from jsonb_array_elements(p_gallery_images)
+    where value->>'url' is not null and value->>'url' != ''
     loop
         insert into media (id, url, alt, caption)
         values (
@@ -602,8 +841,58 @@ begin
 end;
 $$;
 
+create or replace function update_festival(
+  p_content_id uuid,
+  p_municipality_id uuid,
+  p_name text,
+  p_slug text,
+  p_short_description text,
+  p_body text,
+  p_tags text[],
+  p_date date,
+  p_status content_status default 'published',
+  p_main_image jsonb default null,
+  p_gallery_images jsonb default '[]'::jsonb
+)
+returns void language plpgsql as $$
+declare
+  v_media_id uuid;
+  v_item jsonb;
+begin
+  update content set
+    name = p_name, slug = p_slug, short_description = p_short_description,
+    body = regexp_replace(p_body, '^[ \t]+', '', 'gm'), tags = p_tags, status = p_status,
+    published_at = case when p_status = 'published' and published_at is null then now() else published_at end
+  where id = p_content_id;
 
+  update festival set municipality_id = p_municipality_id, date = p_date where content_id = p_content_id;
 
+  delete from content_media where content_id = p_content_id and role = 'main';
+
+  if p_main_image is not null and p_main_image->>'url' is not null then
+    insert into media (id, url, alt, caption)
+    values (gen_random_uuid(), p_main_image->>'url', p_main_image->>'alt', p_main_image->>'caption')
+    returning id into v_media_id;
+
+    insert into content_media (content_id, media_id, role, display_order)
+    values (p_content_id, v_media_id, 'main', 1);
+  end if;
+
+  delete from content_media where content_id = p_content_id and role = 'gallery';
+
+  for v_item in
+    select value from jsonb_array_elements(p_gallery_images) as value
+    where value->>'url' is not null and value->>'url' != ''
+  loop
+    insert into media (id, url, alt, caption)
+    values (gen_random_uuid(), v_item->>'url', v_item->>'alt', v_item->>'caption')
+    returning id into v_media_id;
+
+    insert into content_media (content_id, media_id, role, display_order)
+    values (p_content_id, v_media_id, 'gallery', coalesce((v_item->>'order')::int, 1));
+  end loop;
+end;
+$$;
 
 
 create or replace function create_event(
@@ -688,9 +977,9 @@ begin
             content_id,
             media_id,
             role,
-            display_order
-        )
-        values (
+                display_order
+            )
+            values (
             v_content_id,
             v_media_id,
             'main',
@@ -698,8 +987,9 @@ begin
         );
     end if;
 
-    for v_item in
-        select * from jsonb_array_elements(p_gallery_images)
+for v_item in
+    select * from jsonb_array_elements(p_gallery_images)
+    where value->>'url' is not null and value->>'url' != ''
     loop
         insert into media (id, url, alt, caption)
         values (
@@ -726,5 +1016,63 @@ begin
 
     return query
     select v_event_id, v_content_id;
+end;
+$$;
+
+
+create or replace function update_event(
+  p_content_id uuid,
+  p_municipality_id uuid,
+  p_name text,
+  p_slug text,
+  p_short_description text,
+  p_body text,
+  p_tags text[],
+  p_date date,
+  p_end_date date default null,
+  p_venue text default null,
+  p_status content_status default 'published',
+  p_main_image jsonb default null,
+  p_gallery_images jsonb default '[]'::jsonb
+)
+returns void language plpgsql as $$
+declare
+  v_media_id uuid;
+  v_item jsonb;
+begin
+  update content set
+    name = p_name, slug = p_slug, short_description = p_short_description,
+    body = regexp_replace(p_body, '^[ \t]+', '', 'gm'), tags = p_tags, status = p_status,
+    published_at = case when p_status = 'published' and published_at is null then now() else published_at end
+  where id = p_content_id;
+
+  update event set
+    municipality_id = p_municipality_id, date = p_date, end_date = p_end_date, venue = p_venue
+  where content_id = p_content_id;
+
+  delete from content_media where content_id = p_content_id and role = 'main';
+
+  if p_main_image is not null and p_main_image->>'url' is not null then
+    insert into media (id, url, alt, caption)
+    values (gen_random_uuid(), p_main_image->>'url', p_main_image->>'alt', p_main_image->>'caption')
+    returning id into v_media_id;
+
+    insert into content_media (content_id, media_id, role, display_order)
+    values (p_content_id, v_media_id, 'main', 1);
+  end if;
+
+  delete from content_media where content_id = p_content_id and role = 'gallery';
+
+  for v_item in
+    select value from jsonb_array_elements(p_gallery_images) as value
+    where value->>'url' is not null and value->>'url' != ''
+  loop
+    insert into media (id, url, alt, caption)
+    values (gen_random_uuid(), v_item->>'url', v_item->>'alt', v_item->>'caption')
+    returning id into v_media_id;
+
+    insert into content_media (content_id, media_id, role, display_order)
+    values (p_content_id, v_media_id, 'gallery', coalesce((v_item->>'order')::int, 1));
+  end loop;
 end;
 $$;

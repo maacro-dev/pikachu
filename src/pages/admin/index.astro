@@ -1,0 +1,22 @@
+---
+export const prerender = false;
+
+import AdminLayout from "@/layouts/AdminLayout.astro";
+
+import { Dashboard } from "@/components/react/Dashboard";
+import { getAuthenticatedUser } from "@/lib/utils/auth";
+
+const user = await getAuthenticatedUser(Astro.cookies);
+
+if (!user) {
+  Astro.cookies.delete("sb-access-token", { path: "/admin" });
+  Astro.cookies.delete("sb-refresh-token", { path: "/admin" });
+  return Astro.redirect("/admin/auth");
+}
+
+
+---
+
+<AdminLayout email={user.email}>
+  <Dashboard client:only />
+</AdminLayout>

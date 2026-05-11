@@ -1,5 +1,11 @@
 
-import { getAll, getSlugs, getBySlug, getFilters } from "./district.api";
+import { getAll, getSlugs, getBySlug, getFilters, getAllAdmin } from "./district.api";
+
+import {
+  createDistrict, updateDistrict, deleteDistrict,
+  createMunicipality, updateMunicipality, deleteMunicipality,
+  createContent, updateContent, deleteContent,
+} from "./admin.api";
 
 import {
   getAll as getAllMunicipalities,
@@ -27,6 +33,7 @@ import { getAllByMunicipalityId as getEventsByMunicipalityId, getAll as getAllEv
 export const SupabaseAPI = {
   districts: {
     getAll,
+    getAllAdmin,
     getSlugs,
     getBySlug,
     getFilters
@@ -58,5 +65,17 @@ export const SupabaseAPI = {
     getAllByMunicipalityId: getEventsByMunicipalityId,
     getAll: getAllEvents,
     getFeatured: getFeaturedEvents
+  },
+
+  admin: {
+    createDistrict,
+    updateDistrict,
+    deleteDistrict,
+    createMunicipality,
+    updateMunicipality,
+    deleteMunicipality,
+    createContent,
+    updateContent,
+    deleteContent,
   },
 };
