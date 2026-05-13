@@ -59,7 +59,6 @@ const {
       if (overlay) {
         overlay.classList.remove("loading");
         overlay.classList.add("done");
-        // Clean up after the fade-out
         setTimeout(() => overlay.classList.remove("done"), 300);
       }
     };

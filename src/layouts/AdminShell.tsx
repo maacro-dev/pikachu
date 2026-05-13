@@ -12,6 +12,7 @@ import { quickFactsToArray } from "@/lib/utils/quick-facts";
 import { SupabaseAPI } from "@/lib/api/Supabase";
 import { PATH_MAP } from "@/lib/utils/path";
 import { navigate } from "astro:transitions/client";
+import { triggerDeployHook } from "@/lib/deploy";
 
 type Props = {
   path: string;
@@ -32,36 +33,58 @@ export default function AdminShell({ path, email, children }: Props) {
       const type = PATH_MAP[path];
       const isEditing = !!editingItem;
 
-      const quickFacts = formData.quick_facts ? quickFactsToArray(formData.quick_facts) : [];
+      const quickFacts = formData.quick_facts
+        ? quickFactsToArray(formData.quick_facts)
+        : [];
 
       const base = { ...formData, quick_facts: quickFacts };
 
       if (type === "district") {
         if (isEditing) {
-          await SupabaseAPI.admin.updateDistrict(editingItem.content_id, editingItem.id, base);
+          await SupabaseAPI.admin.updateDistrict(
+            editingItem.content_id,
+            editingItem.id,
+            base
+          );
         } else {
           await SupabaseAPI.admin.createDistrict(base);
         }
       } else if (type === "municipality") {
         if (isEditing) {
-          await SupabaseAPI.admin.updateMunicipality(editingItem.content_id, editingItem.id, base);
+          await SupabaseAPI.admin.updateMunicipality(
+            editingItem.content_id,
+            editingItem.id,
+            base
+          );
         } else {
           await SupabaseAPI.admin.createMunicipality(base);
         }
       } else {
-        const contentType = type as "attractions" | "foods" | "festivals" | "events";
+        const contentType = type as
+          | "attractions"
+          | "foods"
+          | "festivals"
+          | "events";
+
         if (isEditing) {
-          await SupabaseAPI.admin.updateContent(contentType, editingItem.content_id, editingItem.id, base);
+          await SupabaseAPI.admin.updateContent(
+            contentType,
+            editingItem.content_id,
+            editingItem.id,
+            base
+          );
         } else {
           await SupabaseAPI.admin.createContent(contentType, base);
         }
       }
 
-      navigate(window.location.pathname, { history: 'replace' });
+      await triggerDeployHook();
+
+      navigate(window.location.pathname, { history: "replace" });
       closeDrawer();
     } catch (err) {
       console.error("Save failed:", err);
-      alert("Failed to save. Check the console for details.");
+      alert("Failed to save. Check console for details.");
     }
   };
 
@@ -69,7 +92,7 @@ export default function AdminShell({ path, email, children }: Props) {
   return (
     <TooltipProvider>
       <SidebarProvider>
-        <AppSidebar path={path} email={email}/>
+        <AppSidebar path={path} email={email} />
         <SidebarInset className="flex flex-col min-h-0 relative">
           <Topbar section="Admin" />
           <main className="flex-1 overflow-y-auto px-6 py-8 relative">
