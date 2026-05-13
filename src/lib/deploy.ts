@@ -1,22 +1,37 @@
 
 
-let deployPending = false;
+let deployInProgress = false;
 
 export async function triggerDeployHook() {
-  if (!import.meta.env.PROD) return;
-  if (deployPending) return;
+  if (deployInProgress) return;
 
-  const url = import.meta.env.DEPLOY_HOOK_URL;
+  if (import.meta.env.MODE !== "production") return;
 
-  if (!url) return;
+  const url = import.meta.env.PUBLIC_DEPLOY_HOOK_URL;
 
-  deployPending = true;
+  if (!url) {
+    console.error("Missing PUBLIC_DEPLOY_HOOK_URL");
+    return;
+  }
+
+  deployInProgress = true;
 
   try {
-    await fetch(url, { method: "POST" });
+    const res = await fetch(url, {
+      method: "POST",
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("Deploy hook failed:", res.status, text);
+    } else {
+      console.log("Deploy triggered");
+    }
   } catch (err) {
-    console.error("Deploy hook failed:", err);
+    console.error("Deploy hook error:", err);
   } finally {
-    deployPending = false;
+    setTimeout(() => {
+      deployInProgress = false;
+    }, 60_000);
   }
 }

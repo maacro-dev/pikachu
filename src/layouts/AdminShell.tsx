@@ -9,10 +9,8 @@ import { $adminData, closeDrawer } from "@/lib/store/admin-store";
 import { useStore } from "@nanostores/react";
 import { pathToSingularLabel } from "@/lib/utils/string";
 import { quickFactsToArray } from "@/lib/utils/quick-facts";
-import { SupabaseAPI } from "@/lib/api/Supabase";
 import { PATH_MAP } from "@/lib/utils/path";
 import { navigate } from "astro:transitions/client";
-import { triggerDeployHook } from "@/lib/deploy";
 
 type Props = {
   path: string;
@@ -37,48 +35,30 @@ export default function AdminShell({ path, email, children }: Props) {
         ? quickFactsToArray(formData.quick_facts)
         : [];
 
-      const base = { ...formData, quick_facts: quickFacts };
+      const payload = {
+        action: isEditing ? "update" : "create",
+        type,
+        data: {
+          ...formData,
+          quick_facts: quickFacts,
+          ...(isEditing && {
+            content_id: editingItem.content_id,
+            district_id: editingItem.district_id,
+            municipality_id: editingItem.municipality_id,
+          }),
+        },
+      };
 
-      if (type === "district") {
-        if (isEditing) {
-          await SupabaseAPI.admin.updateDistrict(
-            editingItem.content_id,
-            editingItem.id,
-            base
-          );
-        } else {
-          await SupabaseAPI.admin.createDistrict(base);
-        }
-      } else if (type === "municipality") {
-        if (isEditing) {
-          await SupabaseAPI.admin.updateMunicipality(
-            editingItem.content_id,
-            editingItem.id,
-            base
-          );
-        } else {
-          await SupabaseAPI.admin.createMunicipality(base);
-        }
-      } else {
-        const contentType = type as
-          | "attractions"
-          | "foods"
-          | "festivals"
-          | "events";
+      const res = await fetch("/functions/v1/save-content", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-        if (isEditing) {
-          await SupabaseAPI.admin.updateContent(
-            contentType,
-            editingItem.content_id,
-            editingItem.id,
-            base
-          );
-        } else {
-          await SupabaseAPI.admin.createContent(contentType, base);
-        }
+      if (!res.ok) {
+        const { error } = await res.json();
+        throw new Error(error || "Save failed");
       }
-
-      await triggerDeployHook();
 
       navigate(window.location.pathname, { history: "replace" });
       closeDrawer();
