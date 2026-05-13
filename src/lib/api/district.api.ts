@@ -1,7 +1,6 @@
 import { supabase } from "../supabase";
 import { parseDistrict, parseDistrictArray, type District, } from "../schemas/district.schema";
 
-
 export async function getAll(): Promise<District[]> {
   const { data, error } = await supabase
     .from("district_view")

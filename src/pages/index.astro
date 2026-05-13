@@ -27,10 +27,7 @@ const [districts, events, attractions] = await Promise.all([
         class="h-[110%] w-full object-cover object-center transition-transform duration-100 will-change-transform"
         fetchpriority="high"
       />
-      <div
-        class="absolute inset-0 bg-linear-to-t from-deep/85 via-deep/30 to-transparent"
-      >
-      </div>
+      <div class="absolute inset-0 bg-linear-to-t from-deep/85 via-deep/30 to-transparent"></div>
     </div>
 
     <div class="section-container relative z-10 pb-20 text-white">
@@ -40,20 +37,14 @@ const [districts, events, attractions] = await Promise.all([
         Welcome to Iloilo Province
       </div>
 
-      <h1
-        class="mb-6 font-display text-[clamp(3.5rem,12vw,9rem)] font-normal leading-none"
-      >
+      <h1 class="mb-6 font-display text-[clamp(3.5rem,12vw,9rem)] font-normal leading-none">
         Fun.<br />
         <em class="text-primary">Foodie.</em><br />
         Friendly.
       </h1>
 
-      <p
-        class="mb-8 max-w-[45ch] text-[clamp(0.9rem,2vw,1.1rem)] leading-[1.65] text-white/80"
-      >
-        Discover five vibrant districts, a world-class food scene,<br
-          class="hidden md:block"
-        />
+      <p class="mb-8 max-w-[45ch] text-[clamp(0.9rem,2vw,1.1rem)] leading-[1.65] text-white/80">
+        Discover five vibrant districts, a world-class food scene,<br class="hidden md:block" />
         and the warmest people in the Philippines.
       </p>
 
@@ -75,7 +66,7 @@ const [districts, events, attractions] = await Promise.all([
     </div>
 
     <div
-      class="absolute bottom-8 right-8 z-10 flex flex-col items-center gap-2 text-[0.7rem] font-medium uppercase tracking-widest text-white/60"
+      class="absolute bottom-8 right-8 z-10 flex flex-col items-center gap-2 text-2xs font-medium uppercase tracking-widest text-white/60"
     >
       <span>Scroll</span>
       <div
@@ -85,9 +76,7 @@ const [districts, events, attractions] = await Promise.all([
     </div>
   </section>
 
-  <section
-    class="section-container min-h-svh flex flex-col justify-center items-center gap-16"
-  >
+  <section class="section-container min-h-svh flex flex-col justify-center items-center gap-16">
     <SectionHeader
       label="Five Districts"
       title="Where would you like to go?"
@@ -112,9 +101,7 @@ const [districts, events, attractions] = await Promise.all([
             </div>
 
             <div class="relative z-10 p-4 text-white">
-              <h3 class="font-display text-[1.1rem] font-bold leading-[1.2]">
-                {d.name}
-              </h3>
+              <h3 class="font-display text-[1.1rem] font-bold leading-[1.2]">{d.name}</h3>
               <span class="mb-1 block text-[0.68rem] font-medium tracking-[0.06em] text-white/70">
                 {d.tagline}
               </span>
@@ -179,24 +166,18 @@ const [districts, events, attractions] = await Promise.all([
   }
 
   <section class="mt-16 bg-deep">
-    <div
-      class="section-container flex flex-col items-center gap-12 py-16 md:flex-row md:justify-between"
-    >
+    <div class="section-container flex flex-col items-center gap-12 py-16 md:flex-row md:justify-between">
       <div class="flex max-w-[40ch] flex-col gap-4 text-white">
-        <span
-          class="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-primary"
-        >
+        <span class="text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-primary">
           Food Capital of the Philippines
         </span>
-        <h2
-          class="font-display text-[clamp(2rem,6vw,3.5rem)] font-normal leading-[1.1]"
-        >
+        <h2 class="font-display text-[clamp(2rem,6vw,3.5rem)] font-normal leading-[1.1]">
           Taste the<br />
           <em class="text-primary">Iloilo</em> difference
         </h2>
         <p class="text-[0.9rem] leading-[1.7] text-white/65">
-          From La Paz Batchoy to fresh seafood by the strait — Ilonggo cuisine
-          is a love language spoken through every bowl, plate, and bite.
+          From La Paz Batchoy to fresh seafood by the strait — Ilonggo cuisine is a love language spoken
+          through every bowl, plate, and bite.
         </p>
         <a
           href="/food"
@@ -206,9 +187,7 @@ const [districts, events, attractions] = await Promise.all([
         </a>
       </div>
 
-      <div
-        class="aspect-4/3 w-full max-w-100 shrink-0 overflow-hidden rounded-card"
-      >
+      <div class="aspect-4/3 w-full max-w-100 shrink-0 overflow-hidden rounded-card">
         <img
           src="/images/food/batchoy.jpg"
           alt="La Paz Batchoy"
