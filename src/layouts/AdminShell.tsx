@@ -11,6 +11,7 @@ import { pathToSingularLabel } from "@/lib/utils/string";
 import { quickFactsToArray } from "@/lib/utils/quick-facts";
 import { PATH_MAP } from "@/lib/utils/path";
 import { navigate } from "astro:transitions/client";
+import { supabase } from "@/lib/supabase";
 
 type Props = {
   path: string;
@@ -43,21 +44,24 @@ export default function AdminShell({ path, email, children }: Props) {
           quick_facts: quickFacts,
           ...(isEditing && {
             content_id: editingItem.content_id,
-            district_id: editingItem.district_id,
-            municipality_id: editingItem.municipality_id,
+            ...(type === "district" && { district_id: editingItem.id }),
+            ...(type === "municipality" && { municipality_id: editingItem.id }),
+            ...(
+              ["attractions", "foods", "festivals", "events"].includes(type) && {
+                municipality_id: editingItem.municipality_id,
+              }
+            ),
           }),
         },
       };
 
-      const res = await fetch("/functions/v1/save-content", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+      // Call the Edge Function via the Supabase client
+      const { data, error } = await supabase.functions.invoke("save-content", {
+        body: payload,
       });
 
-      if (!res.ok) {
-        const { error } = await res.json();
-        throw new Error(error || "Save failed");
+      if (error) {
+        throw new Error(error.message || "Save failed");
       }
 
       navigate(window.location.pathname, { history: "replace" });
